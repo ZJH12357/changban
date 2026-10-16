@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build:netlify"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  CHANGBAN_BACKEND = "netlify"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Netlify's automatically detected Next.js adapter deploys route handlers as
+# Functions. Never redirect API requests to the old Sites website.

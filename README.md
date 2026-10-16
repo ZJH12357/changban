@@ -2,6 +2,10 @@
 
 适老化网页应用：账号与家庭绑定、今日提醒、报平安、生活记录、家属联系，以及内嵌桌宠「团团」。基础功能与桌宠都不调用外部 AI API，不需要模型密钥。
 
+## 双平台部署
+
+同一套业务逻辑支持原 Sites / Cloudflare D1 和新增 Netlify / PostgreSQL 后端。两边账号和家庭数据独立；原 Sites 构建保留为 `npm run build`，Netlify 使用 `npm run build:netlify`。本地仍可 `npm run demo`。详细配置、首次注册绑定、免费额度和上线验收见 [NETLIFY部署.md](NETLIFY部署.md)。
+
 ## 版本约定
 
 - V1：加入桌宠前的常伴，含独立老人／家属账号与家庭功能。Git 标签：`v1-before-pet`，提交 `4b5793b`。

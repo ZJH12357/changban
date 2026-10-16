@@ -15,7 +15,16 @@ export async function hashToken(token:string){return hex(await crypto.subtle.dig
 export function readSessionToken(req:Request){return req.headers.get("cookie")?.match(new RegExp("(?:^|;\\s*)"+cookieName+"=([a-f0-9]{64})(?:;|$)"))?.[1]??null}
 export function sessionCookie(token:string){return `${cookieName}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=604800${localPreview?"":"; Secure"}`}
 export function expiredSessionCookie(){return `${cookieName}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${localPreview?"":"; Secure"}`}
-export function expectedOrigin(req:Request){return localPreview?new URL(req.url).protocol+"//"+req.headers.get("host"):new URL(req.url).origin}
+export function expectedOrigin(req:Request){
+ const url=new URL(req.url),host=req.headers.get("host");
+ // Next's Node runtime may use an internal hostname in req.url. Compare the
+ // browser Origin against the actual request Host, never x-forwarded-host.
+ // Host cannot be changed by browser scripts; account/family auth is separate.
+ if(!host)return url.origin;
+ if(/[\s\/\\@,#?]/.test(host))throw new Error("ORIGIN_MISMATCH");
+ const protocol=req.headers.get("x-forwarded-proto")==="https"?"https:":url.protocol;
+ return new URL(protocol+"//"+host).origin;
+}
 export function assertSameOrigin(req:Request){const origin=req.headers.get("origin");if(origin&&origin!==expectedOrigin(req))throw new Error("ORIGIN_MISMATCH")}
 export async function getAccount(req:Request):Promise<Account|null>{
  const token=readSessionToken(req);if(!token)return null;

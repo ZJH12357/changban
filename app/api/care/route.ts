@@ -1,5 +1,5 @@
-import { database, localPreview } from "@/db/runtime";
-import { getAccount } from "@/lib/app-auth";
+import { database } from "@/db/runtime";
+import { expectedOrigin, getAccount } from "@/lib/app-auth";
 import { scheduled, shanghaiDate, type FamilyNudge, type Reminder, type Role } from "@/lib/care";
 import { PET_NUDGE_COOLDOWN_MS, petDueAt } from "@/lib/pet";
 import { ensureHistoryTracking, reminderRevisionStatement } from "@/lib/history-store";
@@ -50,8 +50,7 @@ export async function GET(req:Request){try{const c=await memberContext(req);retu
 export async function POST(req:Request){
  try{
   const origin=req.headers.get("origin");
-  const expectedOrigin=localPreview?new URL(req.url).protocol+"//"+req.headers.get("host"):new URL(req.url).origin;
-  if(origin&&origin!==expectedOrigin)throw new ApiError(403,"请求来源不匹配。");
+  if(origin&&origin!==expectedOrigin(req))throw new ApiError(403,"请求来源不匹配。");
   if(Number(req.headers.get("content-length")??0)>20000)throw new ApiError(413,"提交内容过长。");
   let body:Record<string,unknown>;try{body=z.record(z.unknown()).parse(await req.json())}catch{throw new ApiError(400,"提交格式不正确。")}
   const c=await memberContext(req);const {db,family,role}=c;const id=family.id,day=shanghaiDate(),now=new Date().toISOString();
