@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./pet.css";
 import "./history.css";
+import "./experience.css";
 
 export const metadata: Metadata = {
   title: "常伴 V2 · 家庭关怀与桌宠陪伴",

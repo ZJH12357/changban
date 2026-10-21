@@ -6,18 +6,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import CareApp from "@/app/care-app";
+import { DemoExperience } from "@/components/demo-experience";
+import type { Role } from "@/lib/care";
 
 type Session={authenticated:boolean;account?:{username:string;role:"elder"|"caregiver"};needsBinding?:boolean;profile?:{name:string;phone:string;relation:string}|null;error?:string};
 async function post(payload:Record<string,unknown>){const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const data=await r.json() as Session;if(!r.ok)throw new Error(data.error||"操作失败，请重试。");return data}
 
 export default function AccountApp(){
+ const [demo,setDemo]=useState<Role|null>(null);
  const [session,setSession]=useState<Session|null>(null),[error,setError]=useState("");
  const load=useCallback(async()=>{try{const r=await fetch("/api/account",{cache:"no-store"}),data=await r.json() as Session;if(!r.ok)throw new Error(data.error||"无法读取账号信息");setSession(data);setError("")}catch(e){setError(e instanceof Error?e.message:"连接中断")}},[]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{const role=new URLSearchParams(window.location.search).get('demo');if(role==='elder'||role==='caregiver'){setDemo(role);return;}void load()},[load]);
+ function enterDemo(role:Role){const url=new URL(window.location.href);url.searchParams.set('demo',role);window.history.replaceState(null,'',url);setDemo(role);}
+ function exitDemo(){const url=new URL(window.location.href);url.searchParams.delete('demo');window.history.replaceState(null,'',url);setDemo(null);void load();}
  async function logout(){try{setSession(await post({action:"logout"}));toast.success("已退出账号")}catch(e){toast.error(e instanceof Error?e.message:"退出失败")}}
- if(error)return <AccountShell><div className="auth-card"><h1>暂时无法加载</h1><p className="muted spaced">{error}</p><button className="button primary full" onClick={()=>void load()}>重新加载</button></div></AccountShell>;
- if(!session)return <AccountShell><div className="auth-card auth-loading">正在打开常伴…</div></AccountShell>;
- if(!session.authenticated)return <AccountShell><AuthPanel success={setSession}/></AccountShell>;
+ if(demo)return <DemoExperience initialRole={demo} onExit={exitDemo}/>;
+ const demoEntry=<section className="demo-entry"><h2>先看看常伴是什么样</h2><p>免注册 · 虚拟家庭 · 不写入真实数据</p><div><button className="button secondary" onClick={()=>enterDemo('elder')}>免注册体验老人端</button><button className="button secondary" onClick={()=>enterDemo('caregiver')}>免注册体验家属端</button></div></section>;
+ if(error)return <AccountShell>{demoEntry}<div className="auth-card"><h1>暂时无法加载</h1><p className="muted spaced">{error}</p><button className="button primary full" onClick={()=>void load()}>重新加载</button></div></AccountShell>;
+ if(!session)return <AccountShell>{demoEntry}<div className="auth-card auth-loading">正在打开常伴…</div></AccountShell>;
+ if(!session.authenticated)return <AccountShell>{demoEntry}<AuthPanel success={setSession}/></AccountShell>;
  if(session.account?.role==="caregiver"&&session.needsBinding)return <AccountShell><BindingPanel account={session.account.username} success={setSession} logout={logout}/></AccountShell>;
  return <CareApp onLogout={logout}/>;
 }

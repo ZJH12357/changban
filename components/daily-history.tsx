@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, History, RefreshCw } from "lucide-react";
 import { addCalendarDays, clockLabel, kindLabels, type DailyHistoryResponse } from "@/lib/care";
+import { liveTransport, type CareTransport } from "@/lib/care-transport";
 
-export function DailyHistory({ today, onSessionExpired }: { today:string; onSessionExpired:()=>Promise<void> }) {
+export function DailyHistory({ today, onSessionExpired, transport=liveTransport }: { today:string; onSessionExpired:()=>Promise<void>;transport?:CareTransport }) {
   const [date,setDate]=useState(today),[range,setRange]=useState("7"),[reload,setReload]=useState(0);
   const [data,setData]=useState<DailyHistoryResponse|null>(null),[error,setError]=useState(""),[loading,setLoading]=useState(true);
   useEffect(()=>{
@@ -12,7 +13,7 @@ export function DailyHistory({ today, onSessionExpired }: { today:string; onSess
     async function load(){
       if(running)return;running=true;setLoading(true);
       try{
-        const r=await fetch(`/api/history?date=${encodeURIComponent(date)}&range=${range}`,{cache:"no-store",signal:AbortSignal.any([controller.signal,AbortSignal.timeout(20000)])});
+        const r=await transport(`/api/history?date=${encodeURIComponent(date)}&range=${range}`,{cache:"no-store",signal:AbortSignal.any([controller.signal,AbortSignal.timeout(20000)])});
         const result=await r.json() as DailyHistoryResponse&{error?:string};if(controller.signal.aborted)return;
         if(r.status===401){await onSessionExpired();return;}
         if(!r.ok)throw new Error(result.error||"暂时无法加载记录。");
@@ -22,7 +23,7 @@ export function DailyHistory({ today, onSessionExpired }: { today:string; onSess
     }
     void load();const timer=setInterval(()=>{if(date===today&&!document.hidden)void load();},10000);
     return()=>{controller.abort();clearInterval(timer);};
-  },[date,range,reload,today,onSessionExpired]);
+  },[date,range,reload,today,onSessionExpired,transport]);
   const selected=data?.selected;
   return <section className="daily-history" aria-label="每日日程历史">
     <article className="panel history-controls">

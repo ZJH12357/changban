@@ -9,6 +9,8 @@ export type PetPreferences = {
   encouragement: boolean;
   reminders: boolean;
   sound: boolean;
+  voice: boolean;
+  voiceRate: number;
   size: "small" | "medium" | "large";
   anchor: { x: number; y: number };
 };
@@ -18,7 +20,7 @@ export type PetCue = { id: number; kind: "greeting" | "encourage" | "reminder"; 
 
 export const DEFAULT_PET: PetPreferences = {
   enabled: true, mode: "roam", activity: "lively", interaction: "high",
-  greetings: true, encouragement: true, reminders: true, sound: false,
+  greetings: true, encouragement: true, reminders: true, sound: false, voice: false, voiceRate: 0.85,
   size: "medium", anchor: { x: 0.92, y: 0.86 },
 };
 export const PET_SIZES = { small: 76, medium: 100, large: 126 };
@@ -33,13 +35,14 @@ const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(ma
 export function parsePetPreferences(value: unknown): PetPreferences {
   const p = value && typeof value === "object" ? value as Record<string, unknown> : {};
   const result = { ...DEFAULT_PET, anchor: { ...DEFAULT_PET.anchor } };
-  for (const key of ["enabled", "greetings", "encouragement", "reminders", "sound"] as const) {
+  for (const key of ["enabled", "greetings", "encouragement", "reminders", "sound", "voice"] as const) {
     if (typeof p[key] === "boolean") result[key] = p[key];
   }
   if (p.mode === "roam" || p.mode === "fixed") result.mode = p.mode;
   if (p.activity === "quiet" || p.activity === "balanced" || p.activity === "lively") result.activity = p.activity;
   if (p.interaction === "low" || p.interaction === "normal" || p.interaction === "high") result.interaction = p.interaction;
   if (p.size === "small" || p.size === "medium" || p.size === "large") result.size = p.size;
+  if (typeof p.voiceRate === 'number' && [0.75,0.85,1,1.15].includes(p.voiceRate)) result.voiceRate=p.voiceRate;
   const a = p.anchor as Partial<Point> | undefined;
   if (a && typeof a.x === "number" && Number.isFinite(a.x) && typeof a.y === "number" && Number.isFinite(a.y)) {
     result.anchor = { x: clamp(a.x, 0, 1), y: clamp(a.y, 0, 1) };

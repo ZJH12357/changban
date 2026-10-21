@@ -7,12 +7,14 @@ import { PetAvatar, type PetMood } from "@/components/pet-avatar";
 import { PetAgenda } from "@/components/pet-agenda";
 import { clockLabel, scheduleDateLabel, upcomingSchedules, type CareState } from "@/lib/care";
 import { PET_DOUBLE_CLICK_MS, PET_SIZES, activeFamilyNudges, clampPet, clearPetPath, familyPetBrief, nearestPetTask, overlaps, pendingPetTasks, petDueAt, petOccurrenceKey, petSingleClickKind, type PetCue, type PetPreferences, type Point, type Rect } from "@/lib/pet";
+import type { PetSpeech } from "@/hooks/use-pet-speech";
 
 type Bubble = { text: string; until: number; priority: number };
-export function CompanionPet({ data, preferences: p, update, cue, homeSignal, suspended, busy, onAction, onSettings }: {
+export function CompanionPet({ data, preferences: p, update, cue, homeSignal, suspended, busy, onAction, onSettings, speech }: {
   data: CareState; preferences: PetPreferences; update: (patch: Partial<PetPreferences>) => void;
   cue: PetCue | null; homeSignal: number; suspended: boolean; busy: boolean;
   onAction: (payload: Record<string, unknown>, message: string) => Promise<boolean>; onSettings: () => void;
+  speech: PetSpeech;
 }) {
   const [position, setPosition] = useState<Point>({ x: 0, y: 0 });
   const [placed, setPlaced] = useState(false), [mood, setMood] = useState<PetMood>("idle");
@@ -75,11 +77,13 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     bubbleRef.current = value; setBubble(value); target.current = null;
     setMood(kind === "reminder" ? "alert" : kind === "encourage" ? "happy" : "greet");
     nextMove.current = value.until + 1200; lastChat.current = Date.now();
-  }, []);
+    speech.speak(text);
+  }, [speech.speak]);
+  useEffect(()=>{if(suspended||blocked||open||!p.enabled)speech.stop();},[suspended,blocked,open,p.enabled,speech.stop]);
 
   useEffect(() => {
     if (!bubble || !placed) return;
-    const width = Math.min(255, window.innerWidth - 28), height = 190;
+    const width = Math.min(255, window.innerWidth - 28), height = p.voice ? 240 : 190;
     const obs = obstacles(), viewport = window.visualViewport?.height ?? window.innerHeight;
     const bottom = document.querySelector(".bottom-nav")?.getBoundingClientRect().top ?? viewport;
     const candidates = [
@@ -91,7 +95,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     const penalty = (point: Point) => obs.reduce((total, o) => total + Math.max(0, Math.min(point.x + width, o.x + o.width) - Math.max(point.x, o.x)) * Math.max(0, Math.min(point.y + height, o.y + o.height) - Math.max(point.y, o.y)), 0);
     candidates.sort((a, b) => penalty(a) - penalty(b));
     setBubblePosition({ x: candidates[0].x - position.x, y: candidates[0].y - position.y });
-  }, [bubble, position, size, obstacles, placed]);
+  }, [bubble, position, size, obstacles, placed, p.voice]);
 
   useEffect(() => {
     const focus = () => setBlocked(document.activeElement instanceof Element && !!document.activeElement.closest("input,textarea,select,[role=combobox],[contenteditable=true]"));
@@ -167,6 +171,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     try { seen.current = new Set(JSON.parse(sessionStorage.getItem(`changban-pet-seen:${data.account.username}`) || "[]")); } catch { seen.current = new Set(); }
   }, [data.account.username]);
   useEffect(() => {
+    if (p.enabled && (!placed || !greeted.current)) return;
     if (document.hidden || suspended || blocked || open || Date.now() < greetingUntil.current) return;
     if (bubbleRef.current && bubbleRef.current.until > Date.now() && bubbleRef.current.priority >= 3) return;
     const nudge = !caregiver && activeFamilyNudges(data).find(n => !seenNudges.current.has(n.id));
@@ -193,7 +198,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
         oscillator.connect(gain); gain.connect(audio.destination); oscillator.start(); oscillator.stop(audio.currentTime + 0.6); oscillator.onended = () => { void audio.close(); };
       } catch { /* Visual reminders do not depend on audio support. */ }
     }
-  }, [clock, data, p.enabled, p.reminders, p.sound, suspended, blocked, open, say]);
+  }, [clock, data, p.enabled, p.reminders, p.sound, suspended, blocked, open, say, placed]);
 
   const cancelClick = useCallback(() => {
     if (clickTimer.current !== null) clearTimeout(clickTimer.current);
@@ -224,6 +229,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     say(`最近的一件日程：${time} ${task.title}。${petDueAt(task, data.today) <= now ? "已经到时间了，按自己的节奏来。" : "还没到时间，我陪您记着。"}`, "reminder", true);
   }
   function clickPet(detail: number) {
+    speech.activate();
     if (suppressClick.current) { suppressClick.current = false; cancelClick(); return; }
     // Delay a single tap so a double tap opens only the panel (also works on touch screens).
     if (clickTimer.current !== null || detail > 1) { openPanel(); return; }
@@ -231,6 +237,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     clickTimer.current = setTimeout(() => { clickTimer.current = null; singleClick(); }, PET_DOUBLE_CLICK_MS);
   }
   function pointerDown(e: ReactPointerEvent<HTMLButtonElement>) {
+    speech.activate();
     if (e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, origin: positionRef.current, moved: false };
@@ -252,7 +259,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
   const pending = pendingPetTasks(data.tasks, data.today), completed = data.tasks.length - pending.length;
   return <>
     {p.enabled && placed && <div className={`pet-widget ${dragging ? "pet-dragging" : ""}`} data-pet-state={mood} data-pet-mode={p.mode} data-pet-paused={!active || open ? "true" : "false"} style={{ left: position.x, top: position.y, "--pet-size": `${size}px`, visibility: suspended ? "hidden" : "visible" } as CSSProperties}>
-      {bubble && active && !open && <div className="pet-bubble" style={{ left: bubblePosition.x, top: bubblePosition.y }} role="status" aria-live="polite"><button className="pet-bubble-close" aria-label="收起团团的话" onClick={() => { bubbleRef.current = null; setBubble(null); setMood("idle"); }}><X size={15} /></button><p className="pet-bubble-message">{bubble.text}</p></div>}
+      {bubble && active && !open && <div className="pet-bubble" style={{ left: bubblePosition.x, top: bubblePosition.y }} role="status" aria-live="polite"><button className="pet-bubble-close" aria-label="收起团团的话" onClick={() => { speech.stop();bubbleRef.current = null; setBubble(null); setMood("idle"); }}><X size={15} /></button><p className="pet-bubble-message">{bubble.text}</p>{p.voice&&speech.supported&&<div className="pet-bubble-speech"><button onClick={()=>{speech.activate();speech.speak(bubble.text);}}>再听一遍</button><button disabled={!speech.speaking} onClick={speech.stop}>停止播报</button></div>}</div>}
       <button className="pet-touch" aria-label={caregiver ? "团团，单击了解老人日程进度，15 秒内再单击闲聊，双击展开面板，可拖动位置" : "团团，单击提醒最近日程，15 秒内再单击闲聊，双击展开面板，可拖动位置"} title={`${caregiver ? "单击看进度" : "单击提醒"} · 15 秒内再点闲聊 · 双击展开（键盘方向下键展开）`} aria-haspopup="dialog" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={e => pointerEnd(e)} onPointerCancel={e => pointerEnd(e, true)} onClick={e => clickPet(e.detail)} onKeyDown={e => { if (e.key === "ArrowDown") { e.preventDefault(); openPanel(); } }}><PetAvatar mood={!active || open ? "idle" : mood} /><span className="pet-name">团团{pending.length > 0 && <small>{pending.length}</small>}</span></button>
     </div>}
     <Dialog open={open && p.enabled} onOpenChange={value => { setOpen(value); nextMove.current = Date.now() + 5000; }}><DialogContent className="care-dialog pet-sheet"><div className="pet-sheet-heading"><div className="pet-mini"><PetAvatar mood="happy" /></div><div><p className="eyebrow">{caregiver ? "团团陪您关心家人" : "团团陪您记着"}</p><DialogTitle>{caregiver ? "家人的日程进度" : "今天的小安排"}</DialogTitle></div></div><DialogDescription>{caregiver ? `${data.family.name}今天已完成 ${completed} 项，还有 ${pending.length} 项。` : pending.length ? `今天已完成 ${completed} 项，还有 ${pending.length} 件小事，慢慢来。` : "今天没有待办啦，做点自己喜欢的事吧。"}</DialogDescription>

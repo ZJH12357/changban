@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { registerHooks } from 'node:module';
+registerHooks({resolve(specifier,context,next){if(context.parentURL?.endsWith('/lib/demo.ts')&&specifier==='./care')return {url:new URL('../lib/care.ts',import.meta.url).href,shortCircuit:true};return next(specifier,context);}});
+const {createDemoStore}=await import('../lib/demo.ts');
+const {DEFAULT_PET,parsePetPreferences}=await import('../lib/pet.ts');
+assert.equal(DEFAULT_PET.voice,false);assert.equal(parsePetPreferences({voiceRate:Infinity}).voiceRate,0.85);assert.equal(parsePetPreferences({voice:true,voiceRate:1}).voice,true);
+const first=createDemoStore(),second=createDemoStore(),family=first.transport('caregiver'),elder=first.transport('elder');
+async function action(transport,body,ok=true){const r=await transport('/api/care',{method:'POST',body:JSON.stringify(body)});assert.equal(r.ok,ok);return r.json();}
+await action(family,{action:'task',id:'stretch',status:'done'},false);
+await action(elder,{action:'task',id:'stretch',status:'done'});
+assert.equal(first.view('caregiver').tasks.find(t=>t.id==='stretch').status,'done');
+assert.equal(second.view('elder').tasks.find(t=>t.id==='stretch').status,'pending');
+assert.notEqual(first.view('elder').family.id,second.view('elder').family.id);
+assert.equal(first.view('caregiver').family.invite,undefined);
+const p=first.view('caregiver').plans.find(p=>p.id==='stretch');
+await action(family,{action:'plan',plan:{...p,title:'后来改过的名称'}});await action(family,{action:'archive',id:p.id});
+assert.ok(first.history(first.view('elder').today,7).selected.tasks.some(t=>t.title===p.title&&t.status==='done'));
+await action(elder,{action:'task',id:'shopping',status:'done'},false);
+await action(elder,{action:'rotateInvite'},false);
+assert.equal((await elder('/api/account',{method:'POST',body:'{}'})).ok,false);
+console.log('PASS: separate in-memory virtual families, role restrictions, no real account route, future task guard, immutable history and default-muted voice preferences.');
