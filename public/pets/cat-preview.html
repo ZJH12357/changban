@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#f4f5ed"><meta name="robots" content="noindex">
+ <title>慢慢 · 小猫动画预览｜常伴</title>
+ <style>
+  :root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:#29473c;background:#f4f5ed;font-synthesis:none;line-height:1.6}*{box-sizing:border-box}body{margin:0}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #c29347;outline-offset:4px}button:disabled{opacity:.5;cursor:wait}a{color:inherit}header{width:min(1100px,100%);margin:auto;padding:26px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{text-decoration:none;font-weight:750;display:flex;align-items:center;gap:10px;font-size:21px}.brand>span{display:grid;place-items:center;background:#235b48;color:#fff;border-radius:13px;width:38px;height:38px;font-size:22px}.back{font-size:14px;color:#65786d;text-underline-offset:5px}main{max-width:1060px;margin:24px auto 48px;padding:0 28px}.eyebrow{font-size:12px;letter-spacing:3px;color:#738774;margin:0 0 10px}h1{font-size:clamp(28px,4vw,42px);letter-spacing:-1px;line-height:1.3;margin:0}h1 span{font-weight:450;color:#748477;font-size:.65em;margin-left:12px}.intro{color:#6b7b70;max-width:680px;font-size:15px;margin:15px 0 25px}.preview-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px}.stage-card{border:1px solid #dde3d5;border-radius:26px;background:#fcfdf8;overflow:hidden;position:relative}.stage-top{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;color:#7c8979}.live-dot{display:inline-block;background:#7d9c7e;width:7px;height:7px;border-radius:50%;margin-right:7px}.badge{border:1px solid #e3e7da;border-radius:18px;padding:4px 10px;white-space:nowrap}.stage{height:390px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 65%,#edf1dd 0%,#f7f8ec 45%,#fcfdf8 73%);--cat-size:210px;--roam-distance:55px}.floor{position:absolute;left:10%;bottom:41px;width:80%;height:68px;border-radius:50%;background:radial-gradient(ellipse,#e1e7cf80,transparent 70%)}.plant{position:absolute;bottom:74px;left:12%;color:#bccbaa;opacity:.7;transform:rotate(-8deg);font-size:58px;user-select:none}.pet-mover{position:absolute;bottom:52px;left:50%;width:var(--cat-size);margin-left:calc(var(--cat-size) / -2);transition:width .25s,margin-left .25s}.pet-button{border:0;background:none;display:block;padding:0;width:100%;border-radius:45%;line-height:0;touch-action:manipulation}.pet-button object{width:100%;display:block;pointer-events:none;overflow:visible}.stage[data-state=walk] .pet-mover{animation:roam 9s ease-in-out infinite}.stage[data-paused=true] .pet-mover{animation-play-state:paused}.stage-caption{position:absolute;bottom:18px;left:12px;right:12px;text-align:center;margin:0;font-size:12px;color:#81907a}.pet-name{position:absolute;left:50%;bottom:49px;transform:translateX(-50%);padding:3px 15px;border:1px solid #dce1ce;border-radius:16px;background:#fffff4;color:#687661;font-size:12px;white-space:nowrap}.description{padding:18px 24px;background:#f0f4e8;border-top:1px solid #e5e9da;min-height:100px}.description strong{display:block;font-size:16px;font-weight:650}.description p{margin:5px 0 0;color:#6d7f6d;font-size:13px}.controls{padding:24px;background:#fffefa;border:1px solid #e0e3d7;border-radius:24px}h2{font-size:16px;margin:0 0 5px}.hint{color:#87907f;font-size:12px;margin:0 0 18px}.states{display:grid;grid-template-columns:1fr 1fr;gap:9px}.state{background:#f6f7f0;border:1px solid #e3e7da;border-radius:12px;padding:12px 8px;min-height:49px;color:#687b67;font-size:14px}.state[aria-pressed=true]{background:#28644e;border-color:#28644e;color:#fff;box-shadow:0 3px 9px #28644e1c}.options{border-top:1px solid #e7eadf;margin-top:22px;padding-top:17px}.options>p{font-size:12px;color:#7c8979;margin:0 0 8px}.size-buttons{display:flex;border:1px solid #dfe5d7;padding:3px;border-radius:11px;gap:3px}.size-buttons button{flex:1;min-height:38px;border:0;border-radius:8px;background:none;color:#788473;font-size:13px}.size-buttons [aria-pressed=true]{background:#e9f0e2;color:#2c614d}.utility{display:flex;gap:8px;margin-top:15px}.utility button{flex:1;border:1px solid #dce4d4;border-radius:10px;background:#fffefa;color:#476e55;min-height:44px;font-size:12px}.utility [aria-pressed=true]{background:#eaf1e4}.footnote{display:flex;align-items:flex-start;gap:10px;margin-top:20px;padding:14px 0;font-size:12px;color:#81907e}.footnote span{font-size:17px;color:#8a9c7f}.footnote p{margin:0}.motion-note{font-size:12px;color:#7e7158;margin-top:12px}.motion-note:empty{display:none}.status-error{padding:20px;color:#905c43;font-size:14px}.swatches{display:flex;gap:6px;margin:14px 0}.swatches span{width:16px;height:16px;border-radius:50%;border:1px solid #00000008}.credits{font-size:12px;color:#8b9686;margin:12px 0 0}.ready-label{min-width:6em;text-align:right}@keyframes roam{0%,100%{transform:translateX(calc(var(--roam-distance)*-1))}50%{transform:translateX(var(--roam-distance))}}@media(max-width:760px){header{padding:18px 20px}.brand{font-size:18px}.back{font-size:12px}main{padding:0 16px;margin:12px auto 24px}.eyebrow{font-size:10px}h1 span{display:block;margin:8px 0 0}.intro{font-size:13px;margin:12px 0 20px}.preview-layout{grid-template-columns:1fr;gap:14px}.stage{height:310px;--cat-size:180px;--roam-distance:32px}.stage-top{padding:15px 18px}.pet-mover{bottom:48px}.stage-card{border-radius:20px}.controls{padding:20px;border-radius:20px}.states{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.state{font-size:12px;padding:10px 4px}.description{padding:15px 18px;min-height:94px}.description strong{font-size:15px}.description p{font-size:12px}.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}.options>p{grid-column:1/-1}.utility{margin:0}.utility button{min-height:46px}.pet-name{bottom:45px}.footnote{margin-top:12px}}@media(max-width:360px){.options{grid-template-columns:1fr}.stage{--roam-distance:20px}.stage-top{font-size:11px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+  @media(max-width:760px){.stage{--cat-size:210px}}
+ </style>
+</head>
+<body>
+ <header><a class="brand" href="/?demo=elder"><span aria-hidden="true">♡</span>常伴</a><a class="back" href="/?demo=elder">返回常伴体验 ↗</a></header>
+ <main>
+  <p class="eyebrow">CHANGBAN · COMPANION LAB</p>
+  <h1>先认识一下，慢慢。<span>小猫动画预览</span></h1>
+  <p class="intro">一只不着急的奶油橘白小猫。喜欢晒太阳、伸懒腰，也喜欢安安静静陪着您。名字暂定，先看看它的样子和小动作。</p>
+  <div class="preview-layout">
+   <section class="stage-card" aria-label="小猫动画舞台">
+    <div class="stage-top"><span><i class="live-dot" aria-hidden="true"></i>慢一点，也很好</span><span class="badge">独立预览 · 不替换团团</span></div>
+    <div class="stage" id="stage" data-state="idle">
+     <div class="floor" aria-hidden="true"></div><span class="plant" aria-hidden="true">❧</span>
+     <div class="pet-mover"><button class="pet-button" id="pet" aria-label="摸摸小猫，让慢慢打个招呼" disabled><object id="cat" type="image/svg+xml" data="./cat.svg" tabindex="-1" aria-hidden="true"><span>小猫形象加载失败，请刷新页面重试。</span></object></button></div>
+     <span class="pet-name" aria-hidden="true">慢慢</span><p class="stage-caption">轻点小猫，打个招呼</p>
+    </div>
+    <div class="description" aria-live="polite" aria-atomic="true"><strong id="action-title">待机 · 陪您晒会儿太阳</strong><p id="action-description">轻轻呼吸、眨眨眼、摆摆尾巴，偶尔动动耳朵。不需要一直说话，陪着就好。</p></div>
+   </section>
+   <section class="controls" aria-label="动作预览控制">
+    <h2>看看它的小动作</h2><p class="hint">点击切换，可单独观察每一种动作。</p>
+    <div class="states" role="group" aria-label="选择小猫动作">
+     <button class="state" data-state="idle" aria-pressed="true">安静待机</button><button class="state" data-state="walk" aria-pressed="false">慢慢走路</button>
+     <button class="state" data-state="look" aria-pressed="false">歪头张望</button><button class="state" data-state="stretch" aria-pressed="false">伸个懒腰</button>
+     <button class="state" data-state="sleep" aria-pressed="false">打个小盹</button><button class="state" data-state="greet" aria-pressed="false">抬爪招呼</button>
+     <button class="state" data-state="happy" aria-pressed="false">开心一下</button><button class="state" data-state="alert" aria-pressed="false">温柔提醒</button>
+    </div>
+    <div class="options"><p>看看不同大小</p><div class="size-buttons" role="group" aria-label="预览大小"><button data-size="100" aria-pressed="false">小</button><button data-size="210" aria-pressed="true">标准</button><button data-size="230" aria-pressed="false">大</button></div><div class="utility"><button id="pause" aria-pressed="false">暂停动画</button><button id="tour" aria-pressed="false">轮播动作</button></div></div>
+    <p class="motion-note" id="motion-note"></p>
+    <div class="swatches" aria-hidden="true"><span style="background:#edc691"></span><span style="background:#fff7e5"></span><span style="background:#719984"></span><span style="background:#dba6a0"></span></div>
+    <p class="credits">奶油橘白 · 鼠尾草绿领巾<br>SVG 分层绘制与 CSS 动画，无外部素材依赖。</p>
+   </section>
+  </div>
+  <div class="footnote"><span aria-hidden="true">♧</span><p>这是形象与动作样片，不连接账号、日程或语音服务。确认风格后，再接入常伴的伙伴选择和提醒功能。</p></div>
+ </main>
+ <script>
+  'use strict';
+  const stage=document.getElementById('stage'),object=document.getElementById('cat'),pet=document.getElementById('pet'),pauseButton=document.getElementById('pause'),tourButton=document.getElementById('tour');
+  const words={idle:['待机 · 陪您晒会儿太阳','轻轻呼吸、眨眨眼、摆摆尾巴，偶尔动动耳朵。不需要一直说话，陪着就好。'],walk:['走路 · 踏着自己的小步子','前爪和后脚交替踏步，身体轻轻起伏，尾巴跟着节奏摆动。这里的移动仅限预览舞台。'],look:['张望 · 是您在叫我吗？','歪歪头，眼睛跟着左右看。带着一点好奇，不急着打断您。'],stretch:['伸懒腰 · 舒舒服服活动一下','前爪向下伸展、身体压低，眯着眼慢慢松开。小猫自己的放松时刻。'],sleep:['打盹 · 我就在旁边休息','闭上眼，脑袋轻轻靠向一边，呼吸变慢。不会因为您暂时离开而难过。'],greet:['招呼 · 您好呀，我在呢','抬起小爪挥一挥，露出粉粉的肉垫，再歪一下脑袋。轻点小猫也会打招呼。'],happy:['开心 · 为您悄悄高兴一下','眯起眼睛，轻轻跳一下，尾巴也高兴起来。以后可以用来回应日程完成。'],alert:['提醒 · 有件小事想告诉您','耳朵竖起来，轻轻抬爪、点头。不响警报、不催促，让提醒也温柔一点。']};
+  const states=Object.keys(words),buttons=[...document.querySelectorAll('button[data-state]')];
+  let state='idle',paused=false,touring=false,timer=null,root=null;
+  function syncPause(){stage.dataset.paused=String(paused||document.hidden);if(root)root.dataset.paused=String(paused||document.hidden);pauseButton.setAttribute('aria-pressed',String(paused));pauseButton.textContent=paused?'继续动画':'暂停动画';}
+  function show(next){if(!words[next])return;state=next;stage.dataset.state=next;if(root)root.dataset.state=next;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.state===next)));document.getElementById('action-title').textContent=words[next][0];document.getElementById('action-description').textContent=words[next][1];}
+  function setTour(on){touring=on;tourButton.setAttribute('aria-pressed',String(on));tourButton.textContent=on?'停止轮播':'轮播动作';clearInterval(timer);timer=on?setInterval(()=>{if(!paused&&!document.hidden)show(states[(states.indexOf(state)+1)%states.length]);},5500):null;}
+  function loaded(){try{root=object.contentDocument?.documentElement;if(!root||root.localName!=='svg')return;pet.disabled=false;show(state);syncPause();}catch{document.getElementById('action-description').textContent='小猫未能加载，请刷新重试。';}}
+  object.addEventListener('load',loaded);loaded();
+  object.addEventListener('error',()=>{document.getElementById('action-description').textContent='小猫未能加载，请刷新重试。';});
+  buttons.forEach(b=>b.addEventListener('click',()=>{setTour(false);show(b.dataset.state);}));
+  pet.addEventListener('click',()=>{setTour(false);show('greet');});
+  pauseButton.addEventListener('click',()=>{paused=!paused;syncPause();});
+  tourButton.addEventListener('click',()=>setTour(!touring));
+  document.querySelectorAll('button[data-size]').forEach(b=>b.addEventListener('click',()=>{stage.style.setProperty('--cat-size',b.dataset.size+'px');document.querySelectorAll('button[data-size]').forEach(s=>s.setAttribute('aria-pressed',String(s===b)));}));
+  document.addEventListener('visibilitychange',syncPause);
+  const motion=matchMedia('(prefers-reduced-motion: reduce)');function motionNote(){document.getElementById('motion-note').textContent=motion.matches?'已遵循设备的减少动态效果设置：展示各动作造型，不播放连续动画。':'';}motion.addEventListener('change',motionNote);motionNote();
+  window.addEventListener('pagehide',()=>{clearInterval(timer);});
+ </script>
+</body>
+</html>

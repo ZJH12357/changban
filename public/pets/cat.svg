@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" data-state="idle" role="img" aria-labelledby="title desc">
+ <title id="title">慢慢，一只奶油橘白小猫</title>
+ <desc id="desc">戴绿色领巾的小猫。支持待机、踏步、张望、伸懒腰、打盹、招手、开心和提醒八种动作。</desc>
+ <defs>
+  <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7dbb0"/><stop offset=".52" stop-color="#edc691"/><stop offset="1" stop-color="#dca96e"/></linearGradient>
+  <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffdf2"/><stop offset="1" stop-color="#f5ead6"/></linearGradient>
+  <linearGradient id="ear" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e5b7a3"/><stop offset="1" stop-color="#f3d0b9"/></linearGradient>
+  <linearGradient id="scarf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7ca28b"/><stop offset="1" stop-color="#4b806d"/></linearGradient>
+  <radialGradient id="shine"><stop stop-color="#fffdf4" stop-opacity=".8"/><stop offset="1" stop-color="#fffdf4" stop-opacity="0"/></radialGradient>
+ </defs>
+ <style>
+  *{transform-box:fill-box;transform-origin:center}svg{overflow:visible}.cat-shadow{transform-origin:center;animation:shadow 4s ease-in-out infinite}.cat{transform-origin:50% 91%;animation:breathe 4s ease-in-out infinite}.tail{transform-origin:13% 85%;animation:tail 4.8s ease-in-out infinite}.ear-left{transform-origin:65% 90%;animation:ear 7s ease-in-out infinite}.ear-right{transform-origin:35% 90%;animation:ear 8.5s 1s ease-in-out infinite}.head{transform-origin:50% 82%}.eyes{animation:blink 5.6s infinite}.closed-eyes,.sleep-marks,.hearts,.alert-mark,.paw-pad{opacity:0}.paw-left,.paw-right{transform-origin:50% 12%}.scarf-tip{transform-origin:40% 0;animation:scarf 4s ease-in-out infinite}.nose{transform-origin:center}
+  [data-state=walk] .cat{animation:walk-body .7s ease-in-out infinite}[data-state=walk] .paw-left,[data-state=walk] .foot-right{animation:step .7s ease-in-out infinite}[data-state=walk] .paw-right,[data-state=walk] .foot-left{animation:step .7s -.35s ease-in-out infinite}[data-state=walk] .tail{animation:tail 1.4s ease-in-out infinite}[data-state=walk] .scarf-tip{animation:scarf .7s ease-in-out infinite}
+  [data-state=look] .head{animation:look 4.6s ease-in-out infinite}[data-state=look] .pupils{animation:eyes-look 4.6s ease-in-out infinite}
+  [data-state=stretch] .cat{animation:stretch-cat 4s ease-in-out infinite}[data-state=stretch] .torso{animation:stretch-body 4s ease-in-out infinite}[data-state=stretch] .head{animation:stretch-head 4s ease-in-out infinite}[data-state=stretch] .paw-left{animation:stretch-paw 4s ease-in-out infinite}[data-state=stretch] .paw-right{animation:stretch-paw 4s -.12s ease-in-out infinite}[data-state=stretch] .eyes{opacity:0;animation:none}[data-state=stretch] .closed-eyes{opacity:1}
+  [data-state=sleep] .cat{animation:sleep-breathe 5s ease-in-out infinite;transform:translateY(15px) scaleY(.9)}[data-state=sleep] .head{transform:translate(4px,16px) rotate(12deg)}[data-state=sleep] .eyes{opacity:0;animation:none}[data-state=sleep] .closed-eyes{opacity:1}[data-state=sleep] .tail{animation:tail 8s ease-in-out infinite}[data-state=sleep] .sleep-marks{animation:float 3s ease-in-out infinite;opacity:1}
+  [data-state=greet] .paw-right{animation:wave 1.1s ease-in-out infinite}[data-state=greet] .paw-right .paw-pad{opacity:1}[data-state=greet] .head{transform:rotate(-7deg)}[data-state=greet] .tail{animation:tail 2s ease-in-out infinite}
+  [data-state=happy] .cat{animation:hop 1s ease-in-out infinite}[data-state=happy] .eyes{opacity:0;animation:none}[data-state=happy] .closed-eyes{opacity:1}[data-state=happy] .hearts{opacity:1;animation:float 2s ease-in-out infinite}[data-state=happy] .tail{animation:tail .9s ease-in-out infinite}[data-state=happy] .cat-shadow{animation:hop-shadow 1s ease-in-out infinite}
+  [data-state=alert] .alert-mark{opacity:1;animation:float 2s ease-in-out infinite}[data-state=alert] .head{animation:nod 2.8s ease-in-out infinite}[data-state=alert] .ear-left{transform:rotate(-7deg);animation:none}[data-state=alert] .ear-right{transform:rotate(7deg);animation:none}[data-state=alert] .paw-right{animation:tap 1.5s ease-in-out infinite}
+  [data-paused=true] *,[data-paused=true] .cat{animation-play-state:paused!important}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.012,.987)}}
+  @keyframes shadow{0%,100%{opacity:.7;transform:scaleX(1)}50%{opacity:.55;transform:scaleX(.96)}}
+  @keyframes tail{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(12deg)}}
+  @keyframes scarf{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(7deg)}}
+  @keyframes blink{0%,42%,46%,91%,95%,100%{transform:scaleY(1)}44%,93%{transform:scaleY(.06)}}
+  @keyframes ear{0%,65%,78%,100%{transform:rotate(0)}69%{transform:rotate(-9deg)}73%{transform:rotate(5deg)}}
+  @keyframes walk-body{0%,50%,100%{transform:translateY(0) rotate(-1deg)}25%,75%{transform:translateY(-5px) rotate(1deg)}}
+  @keyframes step{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-13px) rotate(7deg)}}
+  @keyframes look{0%,10%,100%{transform:rotate(0)}30%,44%{transform:rotate(-10deg)}68%,82%{transform:rotate(9deg)}}
+  @keyframes eyes-look{0%,10%,100%{transform:translateX(0)}30%,44%{transform:translateX(-4px)}68%,82%{transform:translateX(4px)}}
+  @keyframes stretch-cat{0%,100%{transform:translateY(0)}40%,65%{transform:translateY(8px)}}
+  @keyframes stretch-body{0%,100%{transform:scale(1)}40%,65%{transform:translateY(-8px) scale(1.18,.83)}}
+  @keyframes stretch-head{0%,100%{transform:translateY(0)}40%,65%{transform:translateY(21px) rotate(-6deg)}}
+  @keyframes stretch-paw{0%,100%{transform:translateY(0)}40%,65%{transform:translateY(12px) scaleY(1.13)}}
+  @keyframes sleep-breathe{0%,100%{transform:translateY(15px) scale(1,.9)}50%{transform:translateY(14px) scale(1.014,.913)}}
+  @keyframes wave{0%,100%{transform:translate(7px,-21px) rotate(-93deg)}50%{transform:translate(8px,-24px) rotate(-122deg)}}
+  @keyframes hop{0%,65%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-18px) rotate(-3deg)}46%{transform:translateY(-5px) rotate(3deg)}}
+  @keyframes hop-shadow{0%,65%,100%{transform:scaleX(1);opacity:.7}30%{transform:scaleX(.75);opacity:.3}}
+  @keyframes float{0%,100%{transform:translateY(0);opacity:.65}50%{transform:translateY(-9px);opacity:1}}
+  @keyframes nod{0%,65%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}45%{transform:rotate(3deg)}}
+  @keyframes tap{0%,65%,100%{transform:translateY(0)}30%{transform:translateY(-9px)}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+ </style>
+ <ellipse class="cat-shadow" cx="160" cy="325" rx="87" ry="12" fill="#49664d" opacity=".13"/>
+ <g class="cat">
+  <g class="tail">
+   <path d="M210 294C275 319 299 275 276 243C266 230 257 232 259 243C266 265 249 279 222 266" fill="none" stroke="#d4a16a" stroke-width="27" stroke-linecap="round"/>
+   <path d="M274 244C269 237 264 237 265 244" fill="none" stroke="#fff0d8" stroke-width="21" stroke-linecap="round"/>
+   <path d="M271 280l15 7M252 296l5 13" fill="none" stroke="#bc8855" stroke-width="7" stroke-linecap="round" opacity=".5"/>
+  </g>
+  <g class="torso">
+   <path d="M111 200C92 223 91 270 97 294C102 321 217 321 222 294C227 267 227 225 207 201Z" fill="url(#fur)"/>
+   <ellipse cx="160" cy="265" rx="41" ry="49" fill="url(#cream)"/>
+   <path d="M100 250l14 5M98 266l14 4M222 250l-13 5M223 267l-13 3" stroke="#c7955d" stroke-width="7" stroke-linecap="round" opacity=".4"/>
+  </g>
+  <g class="foot-left"><ellipse cx="119" cy="311" rx="28" ry="14" fill="#dcbb8f"/><ellipse cx="118" cy="307" rx="26" ry="13" fill="url(#cream)"/><path d="M108 309v5m10-5v5" stroke="#d2bda0" stroke-width="2.5" stroke-linecap="round"/></g>
+  <g class="foot-right"><ellipse cx="199" cy="311" rx="28" ry="14" fill="#dcbb8f"/><ellipse cx="200" cy="307" rx="26" ry="13" fill="url(#cream)"/><path d="M199 309v5m10-5v5" stroke="#d2bda0" stroke-width="2.5" stroke-linecap="round"/></g>
+  <g class="paw-left"><path d="M111 219C94 223 92 260 99 277C104 290 121 285 123 274L128 234Z" fill="url(#fur)"/><ellipse cx="110" cy="274" rx="13" ry="13" fill="url(#cream)"/><path d="M105 277v4m7-4v4" stroke="#d2bda0" stroke-width="2" stroke-linecap="round"/></g>
+  <g class="paw-right"><path d="M209 219C226 223 228 260 221 277C216 290 199 285 197 274L192 234Z" fill="url(#fur)"/><ellipse cx="210" cy="274" rx="13" ry="13" fill="url(#cream)"/><g class="paw-pad" fill="#dba6a0"><ellipse cx="210" cy="275" rx="5.5" ry="5"/><circle cx="204" cy="267" r="2.6"/><circle cx="211" cy="265" r="2.6"/><circle cx="217" cy="269" r="2.6"/></g></g>
+  <g class="head">
+   <g class="ear-left"><path d="M76 116C62 97 57 52 67 41C75 34 110 63 124 84Z" fill="url(#fur)"/><path d="M78 100C71 85 67 60 71 57C77 54 97 73 104 86Z" fill="url(#ear)"/></g>
+   <g class="ear-right"><path d="M244 116C258 97 263 52 253 41C245 34 210 63 196 84Z" fill="url(#fur)"/><path d="M242 100C249 85 253 60 249 57C243 54 223 73 216 86Z" fill="url(#ear)"/></g>
+   <path d="M160 74C105 72 66 105 65 150C61 198 94 226 160 226C226 226 259 198 255 150C254 105 215 72 160 74Z" fill="url(#fur)"/>
+   <ellipse cx="138" cy="115" rx="71" ry="37" fill="url(#shine)"/>
+   <path d="M147 79l5 21m12-22v20m15-17l-4 18" fill="none" stroke="#c88f54" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+   <path d="M69 150l18 5m-17 12l17 2m164-19l-18 5m17 12l-17 2" stroke="#bf8d58" stroke-width="7" stroke-linecap="round" opacity=".45"/>
+   <path d="M160 151C151 173 129 160 115 179C101 203 122 221 160 222C198 221 219 203 205 179C191 160 169 173 160 151Z" fill="url(#cream)"/>
+   <g class="eyes"><g class="pupils"><ellipse cx="119" cy="151" rx="14" ry="18" fill="#546054"/><ellipse cx="201" cy="151" rx="14" ry="18" fill="#546054"/><ellipse cx="120" cy="152" rx="8" ry="12" fill="#333c35"/><ellipse cx="200" cy="152" rx="8" ry="12" fill="#333c35"/><circle cx="115" cy="145" r="4.5" fill="#fffdf3"/><circle cx="197" cy="145" r="4.5" fill="#fffdf3"/><circle cx="124" cy="158" r="2" fill="#b9d1b8"/><circle cx="206" cy="158" r="2" fill="#b9d1b8"/></g></g>
+   <g class="closed-eyes" fill="none" stroke="#5f6657" stroke-width="5" stroke-linecap="round"><path d="M106 154q12-12 24 0M189 154q12-12 24 0"/></g>
+   <ellipse cx="99" cy="176" rx="14" ry="7" fill="#e5b1a0" opacity=".6"/><ellipse cx="221" cy="176" rx="14" ry="7" fill="#e5b1a0" opacity=".6"/>
+   <path class="nose" d="M151 173Q160 169 169 173Q169 177 160 182Q151 177 151 173" fill="#ce9290"/>
+   <path d="M160 182v5m0 0q-7 9-14 1m14-1q7 9 14 1" fill="none" stroke="#8c7c64" stroke-width="2.8" stroke-linecap="round"/>
+   <g stroke="#a18d71" stroke-width="2.4" stroke-linecap="round" opacity=".65"><path d="M122 184l-34-5m34 13l-34 5m110-13l34-5m-34 13l34 5"/></g>
+  </g>
+  <path d="M117 219Q158 231 205 216L208 229Q161 246 116 232Z" fill="url(#scarf)"/>
+  <path class="scarf-tip" d="M183 230l19-3l9 28q-9 11-20 3Z" fill="url(#scarf)"/>
+  <g transform="translate(158 236)"><circle r="9" fill="#e9c77f"/><path d="M-5 3H5M0-5v3" stroke="#a88b4e" stroke-width="1.6" stroke-linecap="round"/><circle cy="5" r="1.5" fill="#a88b4e"/></g>
+ </g>
+ <g class="sleep-marks" fill="#77958a" font-family="system-ui,sans-serif" font-weight="600"><text x="257" y="117" font-size="19">z</text><text x="278" y="89" font-size="27">Z</text></g>
+ <g class="hearts" fill="#cc8a7c"><path d="M266 116c-18-15-17-29-6-29q8 0 9 8q7-9 14-5c10 8-1 20-17 26Z"/><path d="M43 134c-12-10-11-19-4-19q5 0 6 5q4-6 9-3c7 5-1 13-11 17Z" opacity=".6"/></g>
+ <g class="alert-mark"><circle cx="271" cy="104" r="18" fill="#d5af62"/><path d="M271 94v11" stroke="#fffdf2" stroke-width="3.5" stroke-linecap="round"/><circle cx="271" cy="112" r="2" fill="#fffdf2"/></g>
+</svg>
