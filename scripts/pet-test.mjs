@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import { DEFAULT_PET, PET_CHAT_WINDOW_MS, activeFamilyNudges, familyPetBrief, parsePetPreferences, clampPet, clearPetPath, nearestPetTask, pendingPetTasks, petDueAt, petOccurrenceKey, petSingleClickKind, petProgressSummary, petTaskProgress } from '../lib/pet.ts';
 
 assert.deepEqual(parsePetPreferences(null), DEFAULT_PET);
+assert.equal(parsePetPreferences({}).companion,'rabbit','Old accounts keep Tuantuan.');
+assert.equal(parsePetPreferences({companion:'cat',mode:'fixed',voice:true}).companion,'cat');
+assert.equal(parsePetPreferences({companion:'unknown'}).companion,'rabbit');
+assert.equal(parsePetPreferences({companion:'cat',mode:'fixed',voice:true}).mode,'fixed');
 assert.deepEqual([DEFAULT_PET.mode, DEFAULT_PET.activity, DEFAULT_PET.interaction, DEFAULT_PET.size], ['roam', 'lively', 'high', 'medium']);
 assert.deepEqual(parsePetPreferences({}), DEFAULT_PET);
 assert.deepEqual(parsePetPreferences({ activity: 'invalid', interaction: 'invalid' }), DEFAULT_PET);

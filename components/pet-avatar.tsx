@@ -1,6 +1,23 @@
-export type PetMood = "idle" | "walk" | "look" | "sleep" | "greet" | "happy" | "alert";
+"use client";
+import { useCallback, useEffect, useRef } from "react";
+import type { PetCompanion } from "@/lib/pet";
+export type PetMood = "idle" | "walk" | "look" | "stretch" | "sleep" | "greet" | "happy" | "alert";
 
-export function PetAvatar({ mood = "idle" }: { mood?: PetMood }) {
+function CatAvatar({ mood, paused }: { mood: PetMood; paused: boolean }) {
+  const object = useRef<HTMLObjectElement>(null);
+  const sync = useCallback(() => {
+    const root = object.current?.contentDocument?.documentElement;
+    if (root?.localName === "svg") {
+      root.dataset.state = mood;
+      root.dataset.paused = String(paused || document.hidden);
+    }
+  }, [mood, paused]);
+  useEffect(() => { sync(); document.addEventListener("visibilitychange", sync); return () => document.removeEventListener("visibilitychange", sync); }, [sync]);
+  return <span className="cat-avatar" aria-hidden="true"><object ref={object} type="image/svg+xml" data="/pets/cat.svg" onLoad={sync} tabIndex={-1} aria-hidden="true"><img src="/pets/cat.svg" alt="" draggable={false}/></object></span>;
+}
+
+export function PetAvatar({ mood = "idle", companion = "rabbit", paused = false }: { mood?: PetMood; companion?: PetCompanion; paused?: boolean }) {
+  if (companion === "cat") return <CatAvatar mood={mood} paused={paused}/>;
   return <span className={`pet-avatar pet-${mood}`} aria-hidden="true">
     <span className="pet-shadow" />
     <span className="pet-tail" />

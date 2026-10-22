@@ -1,6 +1,12 @@
 import type { CareState, FamilyNudge, Reminder } from "./care";
 
+export type PetCompanion = "rabbit" | "cat";
+export const PET_COMPANIONS = {
+  rabbit: { name: "团团", species: "小兔", detail: "温柔亲近 · 蹦蹦跳跳陪着您" },
+  cat: { name: "慢慢", species: "小猫", detail: "奶油橘白 · 摆尾、张望、伸懒腰" },
+} as const;
 export type PetPreferences = {
+  companion: PetCompanion;
   enabled: boolean;
   mode: "roam" | "fixed";
   activity: "quiet" | "balanced" | "lively";
@@ -19,6 +25,7 @@ export type Rect = Point & { width: number; height: number };
 export type PetCue = { id: number; kind: "greeting" | "encourage" | "reminder"; text: string };
 
 export const DEFAULT_PET: PetPreferences = {
+  companion: "rabbit",
   enabled: true, mode: "roam", activity: "lively", interaction: "high",
   greetings: true, encouragement: true, reminders: true, sound: false, voice: false, voiceRate: 0.85,
   size: "medium", anchor: { x: 0.92, y: 0.86 },
@@ -35,6 +42,7 @@ const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(ma
 export function parsePetPreferences(value: unknown): PetPreferences {
   const p = value && typeof value === "object" ? value as Record<string, unknown> : {};
   const result = { ...DEFAULT_PET, anchor: { ...DEFAULT_PET.anchor } };
+  if (p.companion === "rabbit" || p.companion === "cat") result.companion = p.companion;
   for (const key of ["enabled", "greetings", "encouragement", "reminders", "sound", "voice"] as const) {
     if (typeof p[key] === "boolean") result[key] = p[key];
   }
@@ -76,8 +84,8 @@ export function petProgressSummary(tasks: Reminder[], day: string, now: number) 
   for (const task of tasks) counts[petTaskProgress(task, day, now)]++;
   return counts;
 }
-export function familyPetBrief(data: Pick<CareState, "tasks" | "today" | "family">, now: number): string {
-  if (!data.tasks.length) return `${data.family.name}今天没有日程安排，团团陪您一起关心家人。`;
+export function familyPetBrief(data: Pick<CareState, "tasks" | "today" | "family">, now: number, companion: PetCompanion = "rabbit"): string {
+  if (!data.tasks.length) return `${data.family.name}今天没有日程安排，${PET_COMPANIONS[companion].name}陪您一起关心家人。`;
   const c = petProgressSummary(data.tasks, data.today, now);
   const task = nearestPetTask(data.tasks, data.today, now);
   const summary = `${data.family.name}今天已记录完成 ${c.done}/${data.tasks.length} 项，${c.upcoming} 项时间未到，${c.overdue} 项待确认完成。`;
