@@ -54,7 +54,7 @@ try{
  await page.keyboard.press('Escape');
  await page.getByRole('button',{name:'体验老人端',exact:true}).click();
  await page.locator('.pet-widget[data-pet-companion=cat]').waitFor();
- await page.getByRole('button',{name:'完成做一会儿轻松伸展',exact:true}).click();
+ const complete=page.getByRole('button',{name:'完成做一会儿轻松伸展',exact:true});await complete.scrollIntoViewIfNeeded();await page.waitForTimeout(250);await complete.click();
  await page.waitForFunction(()=>document.querySelector('.pet-bubble-message')?.textContent.includes('慢慢给您点个赞'));
  await page.getByRole('button',{name:'切换桌宠',exact:true}).click();
  await page.locator('.pet-companion-picker').screenshot({path:'outputs/pet-switch-mobile.png'});

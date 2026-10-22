@@ -9,7 +9,7 @@ import { clockLabel, scheduleDateLabel, upcomingSchedules, type CareState } from
 import { PET_COMPANIONS, PET_DOUBLE_CLICK_MS, PET_SIZES, activeFamilyNudges, clampPet, clearPetPath, familyPetBrief, nearestPetTask, overlaps, pendingPetTasks, petDueAt, petOccurrenceKey, petSingleClickKind, type PetCue, type PetPreferences, type Point, type Rect } from "@/lib/pet";
 import type { PetSpeech } from "@/hooks/use-pet-speech";
 
-type Bubble = { text: string; until: number; priority: number };
+type Bubble = { text: string; until: number; priority: number; created: number; kind: PetCue["kind"] };
 export function CompanionPet({ data, preferences: p, update, cue, homeSignal, suspended, busy, onAction, onSettings, speech }: {
   data: CareState; preferences: PetPreferences; update: (patch: Partial<PetPreferences>) => void;
   cue: PetCue | null; homeSignal: number; suspended: boolean; busy: boolean;
@@ -75,7 +75,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
   const say = useCallback((text: string, kind: PetCue["kind"] = "greeting", interrupt = false) => {
     const priority = kind === "greeting" ? 1 : 3;
     if (!interrupt && bubbleRef.current && bubbleRef.current.until > Date.now() && bubbleRef.current.priority > priority) return;
-    const value = { text, until: Date.now() + (kind === "reminder" ? 18000 : 8500), priority };
+    const value = { text, until: Date.now() + (kind === "reminder" ? 18000 : 8500), priority, created: Date.now(), kind };
     bubbleRef.current = value; setBubble(value); target.current = null;
     setMood(kind === "reminder" ? "alert" : kind === "encourage" ? "happy" : "greet");
     nextMove.current = value.until + 1200; lastChat.current = Date.now();
@@ -101,7 +101,14 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
 
   useEffect(() => {
     const focus = () => setBlocked(document.activeElement instanceof Element && !!document.activeElement.closest("input,textarea,select,[role=combobox],[contenteditable=true]"));
-    const scroll = () => { pauseUntil.current = Date.now() + 1300; target.current = null; bubbleRef.current=null;setBubble(null);speech.stop();home(); };
+    const scroll = () => {
+      pauseUntil.current = Date.now() + 1300; target.current = null;
+      // Saving feedback can shift layout and trigger scroll anchoring. Do not swallow a fresh cue.
+      const fresh = bubbleRef.current && Date.now() - bubbleRef.current.created < 800 ? bubbleRef.current : null;
+      if (!fresh) { bubbleRef.current = null; setBubble(null); speech.stop(); }
+      home();
+      if (fresh) setMood(fresh.kind === "reminder" ? "alert" : fresh.kind === "encourage" ? "happy" : "greet");
+    };
     const visibility = () => { setClock(Date.now()); target.current = null; nextMove.current = Date.now() + 3000; };
     document.addEventListener("focusin", focus); document.addEventListener("focusout", focus);
     document.addEventListener("visibilitychange", visibility); window.addEventListener("scroll", scroll, { passive: true });

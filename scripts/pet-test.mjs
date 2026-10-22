@@ -5,6 +5,7 @@ assert.deepEqual(parsePetPreferences(null), DEFAULT_PET);
 assert.equal(parsePetPreferences({}).companion,'rabbit','Old accounts keep Tuantuan.');
 assert.equal(parsePetPreferences({companion:'cat',mode:'fixed',voice:true}).companion,'cat');
 assert.equal(parsePetPreferences({companion:'unknown'}).companion,'rabbit');
+assert.equal(parsePetPreferences({companion:'dog',mode:'fixed',voice:true}).companion,'dog');
 assert.equal(parsePetPreferences({companion:'cat',mode:'fixed',voice:true}).mode,'fixed');
 assert.deepEqual([DEFAULT_PET.mode, DEFAULT_PET.activity, DEFAULT_PET.interaction, DEFAULT_PET.size], ['roam', 'lively', 'high', 'medium']);
 assert.deepEqual(parsePetPreferences({}), DEFAULT_PET);

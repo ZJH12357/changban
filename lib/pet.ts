@@ -1,9 +1,10 @@
 import type { CareState, FamilyNudge, Reminder } from "./care";
 
-export type PetCompanion = "rabbit" | "cat";
+export type PetCompanion = "rabbit" | "cat" | "dog";
 export const PET_COMPANIONS = {
   rabbit: { name: "团团", species: "小兔", detail: "温柔亲近 · 蹦蹦跳跳陪着您" },
   cat: { name: "慢慢", species: "小猫", detail: "奶油橘白 · 摆尾、张望、伸懒腰" },
+  dog: { name: "豆豆", species: "小狗", detail: "棕白垂耳 · 摇尾、歪头、抬爪问好" },
 } as const;
 export type PetPreferences = {
   companion: PetCompanion;
@@ -42,7 +43,7 @@ const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(ma
 export function parsePetPreferences(value: unknown): PetPreferences {
   const p = value && typeof value === "object" ? value as Record<string, unknown> : {};
   const result = { ...DEFAULT_PET, anchor: { ...DEFAULT_PET.anchor } };
-  if (p.companion === "rabbit" || p.companion === "cat") result.companion = p.companion;
+  if (p.companion === "rabbit" || p.companion === "cat" || p.companion === "dog") result.companion = p.companion;
   for (const key of ["enabled", "greetings", "encouragement", "reminders", "sound", "voice"] as const) {
     if (typeof p[key] === "boolean") result[key] = p[key];
   }

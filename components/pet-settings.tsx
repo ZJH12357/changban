@@ -3,7 +3,7 @@ import { useState } from "react";
 import { PawPrint, RotateCcw, LocateFixed, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { PetAvatar } from "@/components/pet-avatar";
-import { DEFAULT_PET, PET_COMPANIONS, type PetPreferences } from "@/lib/pet";
+import { DEFAULT_PET, PET_COMPANIONS, type PetPreferences, type PetCompanion } from "@/lib/pet";
 import type { Role } from "@/lib/care";
 import type { PetSpeech } from "@/hooks/use-pet-speech";
 
@@ -21,7 +21,7 @@ export function PetSettings({ role, preferences: p, update, find, preview, stora
     <div className="section-heading"><div><p className="eyebrow">V2 · 陪伴多一点</p><h2><PawPrint size={23} />桌宠与陪伴</h2></div><span className="badge success">{p.enabled ? `${petName}在这里` : "已关闭"}</span></div>
     <div className="pet-intro"><div className="pet-preview"><PetAvatar companion={p.companion} mood={p.enabled ? "greet" : "sleep"} /></div><div><h3>{role === "caregiver" ? `${petName} · 家属关怀模式` : `认识一下，我叫${petName}`}</h3><p className="muted">{role === "caregiver" ? "单击了解老人日程完成进度，区分已完成、时间未到和待确认完成；双击查看全部日程，对已到时间的未完成事项一键提醒老人。" : "我会散散步、打个盹，也会记得您的小安排。单击提醒最近一件日程，双击展开面板。"}15 秒内再单击陪您闲聊，拖动我换个地方。</p></div></div>
     {toggle("enabled", "开启桌宠", `让${petName}出现在常伴里，随时陪着您`)}
-    <section className="pet-companion-picker" aria-label="选择陪伴伙伴"><h3>选择陪伴伙伴</h3><p className="muted">点击下方按钮立即切换，日程和其他陪伴设置保持不变。</p><div className="pet-companion-options" role="group" aria-label="切换桌宠">{(["rabbit","cat"] as const).map(id=><button type="button" key={id} aria-label={`选择${PET_COMPANIONS[id].name} · ${PET_COMPANIONS[id].species}`} aria-pressed={p.companion===id} onClick={()=>update({companion:id})}><span className="pet-companion-portrait"><PetAvatar companion={id} mood={p.companion===id?"greet":"idle"}/></span><span><b>{PET_COMPANIONS[id].name} · {PET_COMPANIONS[id].species}</b><small>{PET_COMPANIONS[id].detail}</small><em>{p.companion===id?"正在陪伴":"选择这位伙伴"}</em></span></button>)}</div></section>
+    <section className="pet-companion-picker" aria-label="选择陪伴伙伴"><h3>选择陪伴伙伴</h3><p className="muted">点击下方按钮立即切换，日程和其他陪伴设置保持不变。</p><div className="pet-companion-options" role="group" aria-label="切换桌宠">{(Object.keys(PET_COMPANIONS) as PetCompanion[]).map(id=><button type="button" key={id} aria-label={`选择${PET_COMPANIONS[id].name} · ${PET_COMPANIONS[id].species}`} aria-pressed={p.companion===id} onClick={()=>update({companion:id})}><span className="pet-companion-portrait"><PetAvatar companion={id} mood={p.companion===id?"greet":"idle"}/></span><span><b>{PET_COMPANIONS[id].name} · {PET_COMPANIONS[id].species}</b><small>{PET_COMPANIONS[id].detail}</small><em>{p.companion===id?"正在陪伴":"选择这位伙伴"}</em></span></button>)}</div></section>
     <fieldset disabled={!p.enabled} className="pet-controls">
       <legend className="sr-only">{petName}的行为设置</legend>
       <div className="pet-setting-block"><strong>活动方式</strong><div className="pet-mode-options" role="group" aria-label="桌宠活动方式">
@@ -45,6 +45,6 @@ export function PetSettings({ role, preferences: p, update, find, preview, stora
     {resetting && <div className="pet-reset-confirm"><p>恢复默认伙伴团团、自由活动、活泼、约 2 分钟主动互动一次、标准大小及其他默认设置？</p><button className="button primary" onClick={() => { update(DEFAULT_PET); find(); setResetting(false); }}>确认恢复</button><button className="text-button" onClick={() => setResetting(false)}>取消</button></div>}
     <p className="field-help">偏好按当前账号保存在这台浏览器。页面隐藏时{petName}会休息；填写表单或打开弹窗时会安静等候。</p>
     {storageError && <p className="pet-storage-error" role="status">浏览器暂时无法保存偏好，本次设置仍然生效。</p>}
-    <details className="pet-credits"><summary>素材来源</summary><p>团团的兔子头部来自 <a href="https://kenney.nl/assets/animal-pack-remastered" target="_blank" rel="noreferrer">Kenney · Animal Pack Remastered</a>，CC0。慢慢为本项目 SVG 分层绘制；身体、动作与常伴交互为本项目制作。</p></details>
+    <details className="pet-credits"><summary>素材来源</summary><p>团团的兔子头部来自 <a href="https://kenney.nl/assets/animal-pack-remastered" target="_blank" rel="noreferrer">Kenney · Animal Pack Remastered</a>，CC0。慢慢和豆豆为本项目 SVG 分层绘制；身体、动作与常伴交互为本项目制作。</p></details>
   </article>;
 }
