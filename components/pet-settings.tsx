@@ -18,7 +18,7 @@ export function PetSettings({ role, preferences: p, update, find, preview, stora
     <div className="setting-row"><div><strong>{title}</strong><p className="muted">{detail}</p></div><Switch aria-label={title} checked={p[key]} onCheckedChange={value => update({ [key]: value })} /></div>;
   return <article className="panel pet-settings" id="pet-settings">
     <div className="section-heading"><div><p className="eyebrow">V2 · 陪伴多一点</p><h2><PawPrint size={23} />桌宠与陪伴</h2></div><span className="badge success">{p.enabled ? "团团在这里" : "已关闭"}</span></div>
-    <div className="pet-intro"><div className="pet-preview"><PetAvatar mood={p.enabled ? "greet" : "sleep"} /></div><div><h3>{role === "caregiver" ? "团团 · 家属关怀模式" : "认识一下，我叫团团"}</h3><p className="muted">{role === "caregiver" ? "单击了解老人日程完成进度，区分已完成、时间未到和逾期未完成；双击查看全部日程，对已到时间的未完成事项一键提醒老人。" : "我会散散步、打个盹，也会记得您的小安排。单击提醒最近一件日程，双击展开面板。"}15 秒内再单击陪您闲聊，拖动我换个地方。</p></div></div>
+    <div className="pet-intro"><div className="pet-preview"><PetAvatar mood={p.enabled ? "greet" : "sleep"} /></div><div><h3>{role === "caregiver" ? "团团 · 家属关怀模式" : "认识一下，我叫团团"}</h3><p className="muted">{role === "caregiver" ? "单击了解老人日程完成进度，区分已完成、时间未到和待确认完成；双击查看全部日程，对已到时间的未完成事项一键提醒老人。" : "我会散散步、打个盹，也会记得您的小安排。单击提醒最近一件日程，双击展开面板。"}15 秒内再单击陪您闲聊，拖动我换个地方。</p></div></div>
     {toggle("enabled", "开启桌宠", "让团团出现在常伴里，随时陪着您")}
     <fieldset disabled={!p.enabled} className="pet-controls">
       <legend className="sr-only">团团的行为设置</legend>

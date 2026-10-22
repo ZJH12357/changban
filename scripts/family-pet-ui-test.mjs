@@ -33,7 +33,7 @@ try {
   await carePage.locator('.pet-bubble-message').waitFor();
   assert.match(await carePage.locator('.pet-bubble-message').innerText(), /关心联动测试阿姨|完成进度/);
   await carePage.locator('.pet-touch').click(); await carePage.waitForTimeout(500);
-  assert.match(await carePage.locator('.pet-bubble-message').innerText(), /已完成 1\/3 项，1 项时间未到，1 项逾期未完成/);
+  assert.match(await carePage.locator('.pet-bubble-message').innerText(), /已记录完成 1\/3 项，1 项时间未到，1 项待确认完成/);
   await carePage.locator('.pet-touch').dblclick({ delay: 100 });
   await carePage.getByRole('heading', { name: '家人的日程进度' }).waitFor();
   const lateRow = carePage.locator(`[data-task-id="${late.id}"]`);
@@ -43,7 +43,7 @@ try {
   assert.match(await doneRow.innerText(), /已完成.*|老人于/s);
   assert.match(await futureRow.innerText(), /时间未到/);
   assert.match(await futureRow.innerText(), /老人选择了稍后提醒/);
-  assert.match(await lateRow.innerText(), /逾期未完成/);
+  assert.match(await lateRow.innerText(), /待确认完成/);
   assert.equal(await doneRow.getByRole('button').count(), 0);
   assert.equal(await futureRow.getByRole('button').count(), 0);
   assert.equal(await carePage.getByRole('button', { name: '完成', exact: true }).count(), 0);
@@ -68,7 +68,7 @@ try {
   await carePage.waitForFunction(() => document.querySelector('.pet-bubble-message')?.textContent.includes('刚刚记录完成“逾期联动测试”'), null, { timeout: 20000 });
   await carePage.locator('.pet-touch').dblclick({ delay: 100 });
   await carePage.getByRole('heading', { name: '家人的日程进度' }).waitFor();
-  await carePage.waitForFunction(id => document.querySelector(`[data-task-id="${id}"] .pet-progress-status`)?.textContent === '已完成', late.id, { timeout: 20000 });
+  await carePage.waitForFunction(id => document.querySelector(`[data-task-id="${id}"] .pet-progress-status`)?.textContent === '已记录完成', late.id, { timeout: 20000 });
   assert.equal(await carePage.locator('.pet-progress-status.done').count(), 2);
   assert.equal(await lateRow.getByRole('button').count(), 0);
   await carePage.setViewportSize({ width: 390, height: 844 });

@@ -38,7 +38,7 @@ assert.equal(petTaskProgress(snoozed, '2026-10-15', at('09:05')), 'upcoming', 'S
 assert.equal(petTaskProgress(snoozed, '2026-10-15', at('09:11')), 'overdue');
 assert.deepEqual(petProgressSummary([task, snoozed, { ...task, status: 'done' }], '2026-10-15', at('09:05')), { done: 1, upcoming: 1, overdue: 1 });
 const state = { family: { name: '测试阿姨' }, tasks: [task, snoozed, { ...task, id: 'done', status: 'done' }], today: '2026-10-15' };
-assert.match(familyPetBrief(state, at('09:05')), /已完成 1\/3 项，1 项时间未到，1 项逾期未完成/);
+assert.match(familyPetBrief(state, at('09:05')), /已记录完成 1\/3 项，1 项时间未到，1 项待确认完成/);
 assert.match(familyPetBrief({ ...state, tasks: [{ ...task, status: 'done' }] }, at('09:05')), /全部完成/);
 assert.match(familyPetBrief({ ...state, tasks: [] }, at('09:05')), /没有日程/);
 const nudge = { id: 'n1', reminder: task.id, date: state.today, due: new Date(petDueAt(task, state.today)).toISOString(), seen: null };

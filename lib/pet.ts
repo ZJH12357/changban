@@ -67,7 +67,7 @@ export function nearestPetTask(tasks: Reminder[], day: string, now: number): Rem
     !nearest || Math.abs(petDueAt(task, day) - now) < Math.abs(petDueAt(nearest, day) - now) ? task : nearest, undefined);
 }
 export type PetTaskProgress = "done" | "upcoming" | "overdue";
-export const PET_PROGRESS_LABELS = { done: "已完成", upcoming: "时间未到", overdue: "逾期未完成" };
+export const PET_PROGRESS_LABELS = { done: "已记录完成", upcoming: "时间未到", overdue: "待确认完成" };
 export function petTaskProgress(task: Reminder, day: string, now: number): PetTaskProgress {
   return task.status === "done" ? "done" : petDueAt(task, day) > now ? "upcoming" : "overdue";
 }
@@ -80,7 +80,7 @@ export function familyPetBrief(data: Pick<CareState, "tasks" | "today" | "family
   if (!data.tasks.length) return `${data.family.name}今天没有日程安排，团团陪您一起关心家人。`;
   const c = petProgressSummary(data.tasks, data.today, now);
   const task = nearestPetTask(data.tasks, data.today, now);
-  const summary = `${data.family.name}今天已完成 ${c.done}/${data.tasks.length} 项，${c.upcoming} 项时间未到，${c.overdue} 项逾期未完成。`;
+  const summary = `${data.family.name}今天已记录完成 ${c.done}/${data.tasks.length} 项，${c.upcoming} 项时间未到，${c.overdue} 项待确认完成。`;
   return task ? `${summary}最近一件：${task.title}，${PET_PROGRESS_LABELS[petTaskProgress(task, data.today, now)]}。双击查看详情。` : `${summary}今天的安排全部完成啦！`;
 }
 export function taskFamilyNudge(nudges: FamilyNudge[], task: Reminder, day: string): FamilyNudge | undefined {

@@ -21,6 +21,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
   const [bubble, setBubble] = useState<Bubble | null>(null), [open, setOpen] = useState(false);
   const [dragging, setDragging] = useState(false), [blocked, setBlocked] = useState(false), [clock, setClock] = useState(Date.now());
   const [bubblePosition, setBubblePosition] = useState<Point>({ x: -60, y: -130 });
+  const bubbleElement = useRef<HTMLDivElement>(null);
   const positionRef = useRef(position), target = useRef<Point | null>(null), bubbleRef = useRef<Bubble | null>(null);
   const pauseUntil = useRef(0), nextMove = useRef(0), lastChat = useRef(Date.now());
   const drag = useRef<{ id: number; x: number; y: number; origin: Point; moved: boolean } | null>(null);
@@ -40,7 +41,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     const width = viewport?.width ?? window.innerWidth, height = viewport?.height ?? window.innerHeight;
     const top = Math.max(8, Math.min(document.querySelector(".topbar")?.getBoundingClientRect().bottom ?? 90, height * 0.3) + 8);
     const bottom = document.querySelector(".bottom-nav")?.getBoundingClientRect().top ?? height - 16;
-    return { x: 12, y: top, width: Math.max(0, width - size - 24), height: Math.max(0, Math.min(bottom - 12, height - 16) - top - size * 1.3) };
+    return { x: 12, y: top, width: Math.max(0, width - size - 24), height: Math.max(0, Math.min(bottom - 12, height - 16) - top - size * 1.5) };
   }, [size]);
   const obstacles = useCallback((): Rect[] => Array.from(document.querySelectorAll("button,a,input,textarea,select,[role=button],[role=combobox]"))
     .filter(el => !el.closest(".pet-widget,.pet-sheet"))
@@ -50,11 +51,11 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     const b = bounds(), obs = obstacles();
     const preferred = clampPet({ x: b.x + b.width * p.anchor.x, y: b.y + b.height * p.anchor.y }, b);
     // A pinned pet keeps the user's exact spot across page layouts; roaming pets find a clear home.
-    let best = preferred, bestDistance = current.current.p.mode === "fixed" || !obs.some(o => overlaps({ ...preferred, width: size, height: size * 1.3 }, o)) ? 0 : Infinity;
+    let best = preferred, bestDistance = current.current.p.mode === "fixed" || !obs.some(o => overlaps({ ...preferred, width: size, height: size * 1.5 }, o)) ? 0 : Infinity;
     // Prefer a nearby clear resting spot, including narrow mobile side margins.
     for (let y = 0; y <= 8; y++) for (let x = 0; x <= 8; x++) {
       const point = { x: b.x + b.width * x / 8, y: b.y + b.height * y / 8 };
-      if (obs.some(o => overlaps({ ...point, width: size, height: size * 1.3 }, o))) continue;
+      if (obs.some(o => overlaps({ ...point, width: size, height: size * 1.5 }, o))) continue;
       const distance = Math.hypot(point.x - preferred.x, point.y - preferred.y);
       if (distance < bestDistance) { best = point; bestDistance = distance; }
     }
@@ -83,7 +84,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
 
   useEffect(() => {
     if (!bubble || !placed) return;
-    const width = Math.min(255, window.innerWidth - 28), height = p.voice ? 240 : 190;
+    const width = bubbleElement.current?.offsetWidth ?? Math.min(255, window.innerWidth - 28), height = bubbleElement.current?.offsetHeight ?? (p.voice ? 240 : 190);
     const obs = obstacles(), viewport = window.visualViewport?.height ?? window.innerHeight;
     const bottom = document.querySelector(".bottom-nav")?.getBoundingClientRect().top ?? viewport;
     const candidates = [
@@ -99,13 +100,13 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
 
   useEffect(() => {
     const focus = () => setBlocked(document.activeElement instanceof Element && !!document.activeElement.closest("input,textarea,select,[role=combobox],[contenteditable=true]"));
-    const scroll = () => { pauseUntil.current = Date.now() + 1300; target.current = null; };
+    const scroll = () => { pauseUntil.current = Date.now() + 1300; target.current = null; bubbleRef.current=null;setBubble(null);speech.stop();home(); };
     const visibility = () => { setClock(Date.now()); target.current = null; nextMove.current = Date.now() + 3000; };
     document.addEventListener("focusin", focus); document.addEventListener("focusout", focus);
     document.addEventListener("visibilitychange", visibility); window.addEventListener("scroll", scroll, { passive: true });
     const timer = setInterval(() => { if (!document.hidden) setClock(Date.now()); }, 5000);
     return () => { document.removeEventListener("focusin", focus); document.removeEventListener("focusout", focus); document.removeEventListener("visibilitychange", visibility); window.removeEventListener("scroll", scroll); clearInterval(timer); };
-  }, []);
+  }, [home,speech.stop]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -187,7 +188,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
     if (!due.length) return;
     for (const task of due) seen.current.add(petOccurrenceKey(task, data.today));
     try { sessionStorage.setItem(`changban-pet-seen:${data.account.username}`, JSON.stringify([...seen.current].slice(-100))); } catch { /* In-memory deduplication remains available. */ }
-    const text = caregiver ? `${data.family.name}有 ${due.length} 件日程逾期未记录完成，双击查看进度，也可以一键提醒老人。` : due.length > 1 ? `${due.length} 件日程已经到时间，双击我一起看看吧。` : `到时间啦：${due[0].title}。按自己的节奏来。`;
+    const text = caregiver ? `${data.family.name}有 ${due.length} 件日程待确认完成，未记录不代表没有做。双击查看进度，也可以温柔提醒。` : due.length > 1 ? `${due.length} 件日程已经到时间，双击我一起看看吧。` : `到时间啦：${due[0].title}。按自己的节奏来。`;
     if (p.enabled && p.reminders) say(text, "reminder");
     else toast("到时间了", { description: text, duration: 12000 });
     if (p.enabled && p.sound && navigator.userActivation?.hasBeenActive) {
@@ -259,7 +260,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
   const pending = pendingPetTasks(data.tasks, data.today), completed = data.tasks.length - pending.length;
   return <>
     {p.enabled && placed && <div className={`pet-widget ${dragging ? "pet-dragging" : ""}`} data-pet-state={mood} data-pet-mode={p.mode} data-pet-paused={!active || open ? "true" : "false"} style={{ left: position.x, top: position.y, "--pet-size": `${size}px`, visibility: suspended ? "hidden" : "visible" } as CSSProperties}>
-      {bubble && active && !open && <div className="pet-bubble" style={{ left: bubblePosition.x, top: bubblePosition.y }} role="status" aria-live="polite"><button className="pet-bubble-close" aria-label="收起团团的话" onClick={() => { speech.stop();bubbleRef.current = null; setBubble(null); setMood("idle"); }}><X size={15} /></button><p className="pet-bubble-message">{bubble.text}</p>{p.voice&&speech.supported&&<div className="pet-bubble-speech"><button onClick={()=>{speech.activate();speech.speak(bubble.text);}}>再听一遍</button><button disabled={!speech.speaking} onClick={speech.stop}>停止播报</button></div>}</div>}
+      {bubble && active && !open && <div ref={bubbleElement} className="pet-bubble" style={{ left: bubblePosition.x, top: bubblePosition.y }} role="status" aria-live="polite"><button className="pet-bubble-close" aria-label="收起团团的话" onClick={() => { speech.stop();bubbleRef.current = null; setBubble(null); setMood("idle"); }}><X size={15} /></button><p className="pet-bubble-message">{bubble.text}</p>{p.voice&&speech.supported&&<div className="pet-bubble-speech"><button onClick={()=>{speech.activate();speech.speak(bubble.text);}}>再听一遍</button><button disabled={!speech.speaking} onClick={speech.stop}>停止播报</button></div>}</div>}
       <button className="pet-touch" aria-label={caregiver ? "团团，单击了解老人日程进度，15 秒内再单击闲聊，双击展开面板，可拖动位置" : "团团，单击提醒最近日程，15 秒内再单击闲聊，双击展开面板，可拖动位置"} title={`${caregiver ? "单击看进度" : "单击提醒"} · 15 秒内再点闲聊 · 双击展开（键盘方向下键展开）`} aria-haspopup="dialog" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={e => pointerEnd(e)} onPointerCancel={e => pointerEnd(e, true)} onClick={e => clickPet(e.detail)} onKeyDown={e => { if (e.key === "ArrowDown") { e.preventDefault(); openPanel(); } }}><PetAvatar mood={!active || open ? "idle" : mood} /><span className="pet-name">团团{pending.length > 0 && <small>{pending.length}</small>}</span></button>
     </div>}
     <Dialog open={open && p.enabled} onOpenChange={value => { setOpen(value); nextMove.current = Date.now() + 5000; }}><DialogContent className="care-dialog pet-sheet"><div className="pet-sheet-heading"><div className="pet-mini"><PetAvatar mood="happy" /></div><div><p className="eyebrow">{caregiver ? "团团陪您关心家人" : "团团陪您记着"}</p><DialogTitle>{caregiver ? "家人的日程进度" : "今天的小安排"}</DialogTitle></div></div><DialogDescription>{caregiver ? `${data.family.name}今天已完成 ${completed} 项，还有 ${pending.length} 项。` : pending.length ? `今天已完成 ${completed} 项，还有 ${pending.length} 件小事，慢慢来。` : "今天没有待办啦，做点自己喜欢的事吧。"}</DialogDescription>

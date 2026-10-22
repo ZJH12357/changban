@@ -20,7 +20,7 @@ try{
  await p1.locator('.pet-touch').waitFor();await p1.screenshot({path:'outputs/demo-mobile.png'});
  await p1.getByRole('button',{name:'完成做一会儿轻松伸展',exact:true}).click();
  await p1.getByRole('button',{name:'体验家属端',exact:true}).click();
- await p1.locator('.task-row').filter({hasText:'做一会儿轻松伸展'}).filter({hasText:'已完成'}).waitFor();
+ await p1.locator('.task-row').filter({hasText:'做一会儿轻松伸展'}).filter({hasText:'已记录完成'}).waitFor();
  await p1.getByRole('button',{name:'历史',exact:true}).click();
  await p1.locator('.daily-history-task').filter({hasText:'做一会儿轻松伸展'}).filter({hasText:'记录完成'}).waitFor();
  await p2.goto(base+'/?demo=elder',{waitUntil:'domcontentloaded'});
