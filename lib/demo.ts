@@ -40,10 +40,12 @@ export function createDemoStore(now = new Date()) {
    const status=String(b.status);if(!['done','pending','snoozed'].includes(status))throw new Error('状态无效。');
    const o:HistoryOccurrence={reminder:r.id,date:day,status,snooze:status==='snoozed'?new Date(Date.now()+600000).toISOString():null,updated:stamp(),title:r.title,time:r.time,kind:r.kind,note:r.note};
    const i=occurrences.findIndex(v=>v.reminder===r.id&&v.date===day);if(i<0)occurrences.push(o);else occurrences[i]=o;
-  }else if(action==='plan'){
-   family();const p=b.plan as Reminder;if(!p?.title?.trim()||!/^\d{2}:\d{2}$/.test(p.time)||!/^\d{4}-\d{2}-\d{2}$/.test(p.date))throw new Error('请检查演示日程的标题和时间。');
+  }else if(action==='plan'||action==='elderPlan'){
+   if(action==='elderPlan')elder();else family();const p=b.plan as Reminder;if(action==='elderPlan'&&p?.id)throw new Error('此入口仅用于新增日程。');if(!p?.title?.trim()||!/^([01]\d|2[0-3]):[0-5]\d$/.test(p.time)||!/^\d{4}-\d{2}-\d{2}$/.test(p.date)||new Date(p.date+'T12:00:00Z').toISOString().slice(0,10)!==p.date||!['once','daily','weekly'].includes(p.frequency))throw new Error('请检查演示日程的标题和时间。');
+   const stable=b.requestId?`assistant:${id}:${String(b.requestId)}`:null;
+   if(stable){const existing=plans.find(p=>p.id===stable);if(existing){if(['title','kind','time','frequency','date','weekday','note'].some(k=>existing[k as keyof Reminder]!==p[k as keyof Reminder]))throw new Error('保存请求已使用。');return;}}
    const old=p.id?plans.find(v=>v.id===p.id&&v.active):undefined;if(p.id&&!old)throw new Error('找不到演示日程。');
-   const next={id:old?.id??crypto.randomUUID(),title:p.title.slice(0,80),kind:p.kind,time:p.time,frequency:p.frequency,date:p.date,weekday:p.weekday,note:p.note,active:1};
+   const next={id:old?.id??stable??crypto.randomUUID(),title:p.title.slice(0,80),kind:p.kind,time:p.time,frequency:p.frequency,date:p.date,weekday:p.weekday,note:p.note,active:1};
    if(old)Object.assign(old,next);else plans.push(next);revisions.push({...next,reminder:next.id,sequence:++sequence,effective:stamp()});
   }else if(action==='archive'){
    family();const r=reminder();r.active=0;revisions.push({...r,reminder:r.id,sequence:++sequence,effective:stamp()});

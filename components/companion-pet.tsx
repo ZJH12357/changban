@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { PetAvatar, type PetMood } from "@/components/pet-avatar";
 import { PetAgenda } from "@/components/pet-agenda";
+import { PetConversation } from "@/components/pet-conversation";
 import { clockLabel, scheduleDateLabel, upcomingSchedules, type CareState } from "@/lib/care";
 import { PET_COMPANIONS, PET_DOUBLE_CLICK_MS, PET_SIZES, activeFamilyNudges, clampPet, clearPetPath, familyPetBrief, nearestPetTask, overlaps, pendingPetTasks, petDueAt, petOccurrenceKey, petSingleClickKind, type PetCue, type PetPreferences, type Point, type Rect } from "@/lib/pet";
 import type { PetSpeech } from "@/hooks/use-pet-speech";
@@ -20,6 +21,7 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
   const [position, setPosition] = useState<Point>({ x: 0, y: 0 });
   const [placed, setPlaced] = useState(false), [mood, setMood] = useState<PetMood>("idle");
   const [bubble, setBubble] = useState<Bubble | null>(null), [open, setOpen] = useState(false);
+  const [conversation, setConversation] = useState(false);
   const [dragging, setDragging] = useState(false), [blocked, setBlocked] = useState(false), [clock, setClock] = useState(Date.now());
   const [bubblePosition, setBubblePosition] = useState<Point>({ x: -60, y: -130 });
   const bubbleElement = useRef<HTMLDivElement>(null);
@@ -272,7 +274,8 @@ export function CompanionPet({ data, preferences: p, update, cue, homeSignal, su
       <button className="pet-touch" aria-label={caregiver ? `${petName}，单击了解老人日程进度，15 秒内再单击闲聊，双击展开面板，可拖动位置` : `${petName}，单击提醒最近日程，15 秒内再单击闲聊，双击展开面板，可拖动位置`} title={`${caregiver ? "单击看进度" : "单击提醒"} · 15 秒内再点闲聊 · 双击展开（键盘方向下键展开）`} aria-haspopup="dialog" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={e => pointerEnd(e)} onPointerCancel={e => pointerEnd(e, true)} onClick={e => clickPet(e.detail)} onKeyDown={e => { if (e.key === "ArrowDown") { e.preventDefault(); openPanel(); } }}><PetAvatar companion={p.companion} paused={!active || open} mood={!active || open ? "idle" : mood} /><span className="pet-name">{petName}{pending.length > 0 && <small>{pending.length}</small>}</span></button>
     </div>}
     <Dialog open={open && p.enabled} onOpenChange={value => { setOpen(value); nextMove.current = Date.now() + 5000; }}><DialogContent className="care-dialog pet-sheet"><div className="pet-sheet-heading"><div className="pet-mini"><PetAvatar companion={p.companion} mood="happy" /></div><div><p className="eyebrow">{caregiver ? `${petName}陪您关心家人` : `${petName}陪您记着`}</p><DialogTitle>{caregiver ? "家人的日程进度" : "今天的小安排"}</DialogTitle></div></div><DialogDescription>{caregiver ? `${data.family.name}今天已完成 ${completed} 项，还有 ${pending.length} 项。` : pending.length ? `今天已完成 ${completed} 项，还有 ${pending.length} 件小事，慢慢来。` : "今天没有待办啦，做点自己喜欢的事吧。"}</DialogDescription>
-      <PetAgenda data={data} now={clock} busy={busy} onAction={onAction} />
+      <div className="pet-conversation-shortcuts"><button aria-pressed={!conversation} onClick={()=>setConversation(false)}>日程进度</button><button aria-pressed={conversation} onClick={()=>setConversation(true)}>和{petName}说句话</button></div>
+      {conversation ? open && <PetConversation data={data} busy={busy} onAction={onAction} speech={speech} petName={petName} /> : <PetAgenda data={data} now={clock} busy={busy} onAction={onAction} />}
       <div className="pet-sheet-footer"><span><Bell size={15} />常伴打开时提供提醒</span><button className="text-button" onClick={() => { setOpen(false); onSettings(); }}><Settings size={17} />陪伴设置</button></div>
     </DialogContent></Dialog>
   </>;

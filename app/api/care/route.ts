@@ -60,12 +60,16 @@ export async function POST(req:Request){
   async function contact(){
    await db.prepare("INSERT INTO requests (id,family,status,created) SELECT ?,?,'pending',? WHERE NOT EXISTS (SELECT 1 FROM requests WHERE family=? AND status!='resolved')").bind(crypto.randomUUID(),id,now,id).run();
   }
-  if(action==="plan"){
-   caregiver();const p=plan.parse(body.plan);
+  if(action==="plan"||action==="elderPlan"){
+   if(action==="elderPlan")elder();else caregiver();const p=plan.parse(body.plan);
+   if(action==="elderPlan"&&p.id)throw new ApiError(403,"此入口仅用于新增本人日程。");
+   const requestId=body.requestId===undefined?null:z.string().uuid().parse(body.requestId);
+   const stableId=requestId?`assistant:${id}:${requestId}`:null;
+   if(stableId&&!p.id){const existing=await db.prepare("SELECT * FROM reminders WHERE id=? AND family=?").bind(stableId,id).first<Reminder&{active:number}>();if(existing){if(!existing.active||['title','kind','time','frequency','date','weekday','note'].some(k=>existing[k as keyof Reminder]!==p[k as keyof typeof p]))throw new ApiError(409,"这次保存请求已使用，请刷新后重新开始。");return response(await state(c));}}
    await ensureHistoryTracking(db,id,now);
    if(p.id){const found=await db.prepare("SELECT id FROM reminders WHERE id=? AND family=? AND active=1").bind(p.id,id).first();if(!found)throw new ApiError(404,"找不到这条提醒。");
     await db.batch([db.prepare("UPDATE reminders SET title=?,kind=?,time=?,frequency=?,date=?,weekday=?,note=? WHERE id=? AND family=?").bind(p.title,p.kind,p.time,p.frequency,p.date,p.weekday,p.note,p.id,id),reminderRevisionStatement(db,id,p.id,now)]);
-   }else{const rid=crypto.randomUUID();await db.batch([db.prepare("INSERT INTO reminders (id,family,title,kind,time,frequency,date,weekday,note,active) VALUES (?,?,?,?,?,?,?,?,?,1)").bind(rid,id,p.title,p.kind,p.time,p.frequency,p.date,p.weekday,p.note),reminderRevisionStatement(db,id,rid,now)]);}
+   }else{const rid=stableId??crypto.randomUUID();await db.batch([db.prepare("INSERT INTO reminders (id,family,title,kind,time,frequency,date,weekday,note,active) VALUES (?,?,?,?,?,?,?,?,?,1) ON CONFLICT(id) DO NOTHING").bind(rid,id,p.title,p.kind,p.time,p.frequency,p.date,p.weekday,p.note),reminderRevisionStatement(db,id,rid,now)]);}
   }else if(action==="archive"){
    caregiver();const reminder=z.string().parse(body.id);await ensureHistoryTracking(db,id,now);
    const found=await db.prepare("SELECT id FROM reminders WHERE id=? AND family=? AND active=1").bind(reminder,id).first();if(!found)throw new ApiError(404,"找不到这条提醒。");
