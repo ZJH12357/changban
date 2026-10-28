@@ -6,6 +6,8 @@
   NODE_VERSION = "24"
   CHANGBAN_BACKEND = "netlify"
   NEXT_TELEMETRY_DISABLED = "1"
+  # Public model IDs and endpoint URLs are not credentials. Keep API key scanning enabled.
+  SECRETS_SCAN_OMIT_KEYS = "AI_MODEL,AI_BASE_URL"
 
 # Netlify's automatically detected Next.js adapter deploys route handlers as
 # Functions. Never redirect API requests to the old Sites website.
