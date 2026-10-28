@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+const base=process.env.TEST_ORIGIN||'http://127.0.0.1:3000';
+if(!/^http:\/\/127\.0\.0\.1:/.test(base))throw Error('Real-account fixture test is local only.');
+const suffix=Date.now().toString(36);
+function client(){let cookie='';return async(path,body,expected=200)=>{const r=await fetch(base+path,{method:body?'POST':'GET',headers:{Cookie:cookie,...(body?{'Content-Type':'application/json',Origin:base}:{})},...(body?{body:JSON.stringify(body)}:{})});const next=r.headers.get('set-cookie');if(next)cookie=next.split(';')[0];const data=await r.json();assert.equal(r.status,expected,JSON.stringify(data));return data;};}
+const elder=client(),care=client(),other=client(),anon=client();
+await elder('/api/account',{action:'register',role:'elder',username:'insight_e_'+suffix,password:'Test2026Password',name:'洞察测试老人'});
+await care('/api/account',{action:'register',role:'caregiver',username:'insight_c_'+suffix,password:'Test2026Password'});
+await care('/api/life-insights',undefined,403);
+const state=await elder('/api/care');await care('/api/account',{action:'bind',code:state.family.invite,name:'洞察测试家属',phone:'00000000000',relation:'子女'});
+await other('/api/account',{action:'register',role:'elder',username:'insight_o_'+suffix,password:'Test2026Password',name:'另一家庭'});
+await elder('/api/care',{action:'record',record:{mood:'低落',sleep:6,systolic:null,diastolic:null,note:'PRIVATE_NOTE_NEVER_SEND'}});
+await elder('/api/care',{action:'share',share:false});
+await anon('/api/life-insights',undefined,401);
+let response=await elder('/api/life-insights');assert.equal(response.snapshot.summary.lifeDays,1);assert.equal(response.snapshot.summary.averageSleep,6);assert.equal(response.snapshot.days.length,7);assert.equal(response.snapshot.summary.coveredDays,1);assert.ok(!JSON.stringify(response).includes('PRIVATE_NOTE_NEVER_SEND'));assert.ok(!JSON.stringify(response).includes(state.family.invite));
+response=await care('/api/life-insights');assert.equal(response.snapshot.lifeIncluded,false);assert.equal(response.snapshot.summary.lifeDays,0);
+response=await other('/api/life-insights');assert.equal(response.snapshot.summary.lifeDays,0);
+await elder('/api/care',{action:'share',share:true});response=await care('/api/life-insights');assert.equal(response.snapshot.summary.lifeDays,1);
+response=await care('/api/life-insights',{mode:'rules',includeLife:false});assert.equal(response.snapshot.summary.lifeDays,0);assert.equal(response.mode,'rules');assert.ok(response.report.insights.length);assert.ok(response.report.suggestions.length);
+await elder('/api/life-insights',{mode:'ai',includeLife:true},400);
+await elder('/api/life-insights',{mode:'rules',includeLife:true,family:'other'},400);
+console.log('PASS: real local API registration/binding, private/shared records, cross-family isolation, 7-day coverage, rules report and AI consent guard; no model calls.');
