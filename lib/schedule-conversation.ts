@@ -1,6 +1,6 @@
 import { addCalendarDays, type Reminder } from './care';
 
-export type ScheduleDraft = Partial<Pick<Reminder, 'title'|'date'|'time'|'frequency'>>;
+export type ScheduleDraft = Partial<Pick<Reminder, 'title'|'date'|'time'|'frequency'|'note'>>;
 export type ScheduleTurn = { draft: ScheduleDraft; reply: string; ready: boolean };
 const numbers: Record<string, number> = {零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};
 function number(s: string): number {
@@ -9,6 +9,22 @@ function number(s: string): number {
  return numbers[s] ?? NaN;
 }
 export function validDay(day: string) {return /^\d{4}-\d{2}-\d{2}$/.test(day) && !Number.isNaN(Date.parse(day+'T12:00:00Z')) && new Date(day+'T12:00:00Z').toISOString().slice(0,10)===day;}
+
+export function checkScheduleDraft(draft:ScheduleDraft,today:string,now:string):ScheduleTurn {
+ const result=(reply:string,ready=false):ScheduleTurn=>({draft,reply,ready});
+ if(!draft.title?.trim())return result('想让我提醒您做什么事？例如“去公园散步”。');
+ if(draft.title.length>80)return result('事情名称请控制在 80 个字以内。');
+ if(!draft.date)return result(`“${draft.title}”安排在哪一天？可以说今天、明天、后天。`);
+ if(!validDay(draft.date))return result('这个日期不存在，请重新选择日期。');
+ if(draft.date<today)return result('这个日期已经过去了，请告诉我新的日期。');
+ if(!draft.time)return result('几点提醒您？可以说“下午四点半”，或输入 16:30。');
+ if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(draft.time))return result('时间不正确，请重新选择时间。');
+ if(Date.parse(draft.date+'T'+draft.time+':00+08:00')<=Date.parse(now))return result('这个时间已经过去了，请换一个日期或时间；我不会自动替您改到明天。');
+ if(!draft.frequency)return result('只提醒这一次，还是每天提醒？');
+ if(!['once','daily'].includes(draft.frequency))return result('请选择仅一次或每天提醒。');
+ if((draft.note?.length??0)>240)return result('备注请控制在 240 个字以内。');
+ return result('请检查下面的日程卡片。没问题再点“确认保存”；也可以继续说“改成后天”或“改成下午五点”。',true);
+}
 
 /** Deliberately bounded rules, not a language model. Produces drafts only, never writes. */
 export function scheduleTurn(previous: ScheduleDraft, input: string, today: string, now: string): ScheduleTurn {
@@ -44,16 +60,10 @@ export function scheduleTurn(previous: ScheduleDraft, input: string, today: stri
   if(title.length>80)return result('事情名称请控制在 80 个字以内。');
   draft.title=title;
  }
- if(!draft.title)return result('想让我提醒您做什么事？例如“去公园散步”。');
- if(!draft.date)return result(`“${draft.title}”安排在哪一天？可以说今天、明天、后天。`);
- if(draft.date<today)return result('这个日期已经过去了，请告诉我新的日期。');
- if(!draft.time)return result('几点提醒您？可以说“下午四点半”，或输入 16:30。');
- if(Date.parse(draft.date+'T'+draft.time+':00+08:00')<=Date.parse(now))return result('这个时间已经过去了，请换一个日期或时间；我不会自动替您改到明天。');
- if(!draft.frequency)return result('只提醒这一次，还是每天提醒？');
- return result('请检查下面的日程卡片。没问题再点“确认保存”；也可以继续说“改成后天”或“改成下午五点”。',true);
+ return checkScheduleDraft(draft,today,now);
 }
 
 export function draftPlan(draft: ScheduleDraft): Omit<Reminder,'id'> {
- if(!draft.title||!draft.date||!draft.time||!draft.frequency)throw new Error('日程还不完整。');
- return {title:draft.title,date:draft.date,time:draft.time,frequency:draft.frequency,weekday:new Date(draft.date+'T12:00:00Z').getUTCDay(),kind:'other',note:''};
+ if(!draft.title?.trim()||draft.title.length>80||!draft.date||!validDay(draft.date)||!draft.time||!/^([01]\d|2[0-3]):[0-5]\d$/.test(draft.time)||!draft.frequency||!['once','daily'].includes(draft.frequency)||(draft.note?.length??0)>240)throw new Error('日程信息不完整或格式不正确。');
+ return {title:draft.title.trim(),date:draft.date,time:draft.time,frequency:draft.frequency,weekday:new Date(draft.date+'T12:00:00Z').getUTCDay(),kind:'other',note:draft.note?.trim()??''};
 }
