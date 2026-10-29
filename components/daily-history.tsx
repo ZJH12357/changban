@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, History, RefreshCw } from "lucide-react";
-import { addCalendarDays, clockLabel, kindLabels, type DailyHistoryResponse } from "@/lib/care";
+import { addCalendarDays, clockLabel, kindLabels, type CareState, type DailyHistoryResponse } from "@/lib/care";
+import { HistoryWeekChart } from "@/components/history-week-chart";
+import { PetInsights } from "@/components/pet-insights";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { liveTransport, type CareTransport } from "@/lib/care-transport";
 
-export function DailyHistory({ today, onSessionExpired, transport=liveTransport }: { today:string; onSessionExpired:()=>Promise<void>;transport?:CareTransport }) {
+export function DailyHistory({ care, today, onSessionExpired, transport=liveTransport }: { care:CareState; today:string; onSessionExpired:()=>Promise<void>;transport?:CareTransport }) {
   const [date,setDate]=useState(today),[range,setRange]=useState("7"),[reload,setReload]=useState(0);
   const [data,setData]=useState<DailyHistoryResponse|null>(null),[error,setError]=useState(""),[loading,setLoading]=useState(true);
   useEffect(()=>{
@@ -24,6 +27,8 @@ export function DailyHistory({ today, onSessionExpired, transport=liveTransport 
     void load();const timer=setInterval(()=>{if(date===today&&!document.hidden)void load();},10000);
     return()=>{controller.abort();clearInterval(timer);};
   },[date,range,reload,today,onSessionExpired,transport]);
+  const [insightsOpen,setInsightsOpen]=useState(false);
+  const insightTitle=care.role==="caregiver"?"七日关怀研报":"七日生活洞察";
   const selected=data?.selected;
   return <section className="daily-history" aria-label="每日日程历史">
     <article className="panel history-controls">
@@ -36,6 +41,8 @@ export function DailyHistory({ today, onSessionExpired, transport=liveTransport 
     </article>
     {error&&<div className="error-banner" role="alert"><span>{error}</span><button className="button secondary" onClick={()=>setReload(n=>n+1)}>重试</button></div>}
     {!selected?<div className="panel empty" role="status">{loading?"正在整理每天的记录…":"暂无可显示的记录，请重试。"}</div>:<>
+      <HistoryWeekChart data={data} onSelect={setDate}/>
+      <article className="panel history-insight-entry"><div><h2>{insightTitle}</h2><p className="muted">{care.role==="caregiver"?"了解家人近期变化，获取关怀建议。":"看看最近的生活节奏，听听贴心建议。"}</p><p className="history-coverage">分析范围为截至今天的七天。打开后由您选择生成，不会自动调用 AI。</p></div><button className="button primary" onClick={()=>setInsightsOpen(true)}>查看{insightTitle}</button></article>
       <article className="panel"><div className="section-heading"><h2><CalendarDays size={22}/>按天查看</h2><span className="muted">截至 {date}</span></div>
         <div className="history-day-list" aria-label="每日完成汇总">{data.days.map(d=><button key={d.date} className={date===d.date?"selected":""} aria-pressed={date===d.date} aria-label={`查看 ${d.date} 的日程`} onClick={()=>setDate(d.date)}><span>{d.date.slice(5)}</span><b>{d.coverage==="full"?`${d.done}/${d.total}`:`${d.done} 项`}</b><small>{d.coverage==="legacy"?"旧操作记录":d.total?"已完成":"无日程安排"}</small></button>)}</div>
       </article>
@@ -55,5 +62,6 @@ export function DailyHistory({ today, onSessionExpired, transport=liveTransport 
         <p className="history-coverage">“未记录完成”只表示没有在常伴中确认，不代表老人实际没有做。历史为只读；今天的事项请回主页操作。</p>
       </article>
     </>}
+    <Dialog open={insightsOpen} onOpenChange={setInsightsOpen}><DialogContent className="care-dialog pet-sheet"><DialogTitle>{insightTitle}</DialogTitle><DialogDescription>结合最近七天的记录，了解变化与行动建议。</DialogDescription>{insightsOpen&&<PetInsights key={care.account.username+':'+care.family.share} data={care} transport={transport}/>}</DialogContent></Dialog>
   </section>;
 }
