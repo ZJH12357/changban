@@ -2,7 +2,8 @@ import { addCalendarDays, buildDailyHistory, scheduled, shanghaiDate, type CareS
 import type { CareTransport } from './care-transport';
 
 /** Per-entry in-memory sandbox. Never imports a database, cookie or fetch. */
-export function createDemoStore(now = new Date()) {
+export type DemoScenario='starter'|'week'|'rest';
+export function createDemoStore(now = new Date(),scenario:DemoScenario='starter') {
  const day=shanghaiDate(now),start=addCalendarDays(day,-6),id=crypto.randomUUID();
  let clock=now.getTime(),sequence=0;
  const stamp=()=>new Date(clock=Math.max(clock+1,Date.now())).toISOString();
@@ -16,6 +17,12 @@ export function createDemoStore(now = new Date()) {
  const occurrences:HistoryOccurrence[]=[];
  for(let n=0;n<7;n++)for(let j=0;j<3;j++)if(n===0?j===0:(n+j)%3!==0){const p=plans[j],date=addCalendarDays(day,-n);occurrences.push({reminder:p.id,date,status:'done',snooze:null,updated:new Date(date+'T08:30:00+08:00').toISOString(),title:p.title,time:p.time,kind:p.kind,note:p.note});}
  const records:CareState['records']=[{id:'demo-record',date:day,mood:'开心',sleep:8,systolic:null,diastolic:null,note:'这是虚拟生活记录，可以试试记下今天。',created:now.toISOString()}];
+ if(scenario!=='starter'){
+  records.length=0;
+  const sleep=scenario==='rest'?[8,8,7.5,7,6.5,6,6]:[7.5,8,7.5,8,7.5,8,8];
+  for(let i=6;i>=0;i--){const date=addCalendarDays(start,i);records.push({id:i===6?'demo-record':'demo-record:'+date,date,mood:scenario==='rest'&&i>=5?'低落':i%2?'平静':'开心',sleep:sleep[i],systolic:null,diastolic:null,note:'虚拟情境样例，仅用于演示，不代表真实健康状态。',created:new Date(date+'T08:30:00+08:00').toISOString()});}
+  if(scenario==='rest')for(let i=occurrences.length-1;i>=0;i--)if(occurrences[i].date>=addCalendarDays(day,-2)&&occurrences[i].reminder==='walk')occurrences.splice(i,1);
+ }
  const checkins:CareState['checkins']=[],requests:CareState['requests']=[],nudges:CareState['nudges']=[];
  let name='陈阿姨',city='广州',check_time='10:00',share=1,familyName='女儿 · 小林',phone='';
  function view(role:Role):CareState {

@@ -19,3 +19,13 @@ await action(elder,{action:'task',id:'shopping',status:'done'},false);
 await action(elder,{action:'rotateInvite'},false);
 assert.equal((await elder('/api/account',{method:'POST',body:'{}'})).ok,false);
 console.log('PASS: separate in-memory virtual families, role restrictions, no real account route, future task guard, immutable history and default-muted voice preferences.');
+
+const week=createDemoStore(new Date('2026-10-29T04:00:00Z'),'week');
+const rest=createDemoStore(new Date('2026-10-29T04:00:00Z'),'rest');
+assert.equal(week.view('elder').records.length,7);assert.equal(rest.view('caregiver').records.length,7);
+assert.equal(new Set(week.view('elder').records.map(r=>r.date)).size,7);
+assert.equal(rest.view('elder').records.filter(r=>r.mood==='低落').length,2);
+assert.equal(week.view('elder').records.at(-1).date,'2026-10-23');
+await action(rest.transport('elder'),{action:'share',share:false});assert.equal(rest.view('caregiver').records.length,0);
+assert.equal(week.view('caregiver').records.length,7);
+console.log('PASS: complete seven-day scenarios, distinct moods/rest patterns, sharing guard and scenario isolation.');
